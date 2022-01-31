@@ -36,7 +36,7 @@ var objects = {
 
 Number.prototype.between = function(a, b) {
     var min = Math.min.apply(Math, [a, b]),
-      max = Math.max.apply(Math, [a, b]);
+        max = Math.max.apply(Math, [a, b]);
     return this > min && this < max;
 };
 
@@ -48,6 +48,13 @@ function background(offsetX, offsetY) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     for (let i = -150; i < canvas.width + 100; i += 50) {
+        /* 
+            TODO HERE:
+            make the fillStyle swich only twice, and draw 
+            all of the squares of a single color at once.
+            This will make it so that the fillStyle is only
+            set twice, significantly improving performance.
+        */
         for (let j = -150; j < canvas.height + 100; j += 50) {
             "#eeeeee" == ctx.fillStyle ? ctx.fillStyle = "#cccccc" : ctx.fillStyle = "#eeeeee";
             ctx.fillRect(i - offsetX, j - offsetY, 50, 50);
@@ -80,8 +87,8 @@ function checkForCollisions(type) {
             let currentObject = objects[type][i];
             if (
                 // warning: this is a mess
-                (((playerPos.x) <= currentObject.endx) && 
-                (playerPos.x + playerSize) >= currentObject.startx) // x-axis
+                (((playerPos.x) < currentObject.endx) && 
+                (playerPos.x + playerSize) > currentObject.startx) // x-axis
                 &&
                 ((-playerPos.y).between(currentObject.starty, currentObject.endy) ||
                 ((-playerPos.y) - playerSize).between(currentObject.starty, currentObject.endy) ||
@@ -123,47 +130,53 @@ function mainloop() {
     drawPlayer();
 }
 
-document.addEventListener("keydown", function(event) {
-    let oldPos = playerPos;
-    if (event.code === "ArrowLeft") {
-        playerPos.x -= playerSpeed;
-        if (checkForCollisions("rectangles")) {
-            playerPos.x = oldPos.x;
-            while (!checkForCollisions("rectangles")) {
-                playerPos.x -= 1;
+document.addEventListener("keydown", async function(event) {
+    let oldX = playerPos.x;
+    let oldY = playerPos.y;
+    await (async function() {
+        if (event.code === "ArrowLeft") {
+            playerPos.x -= playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.x = oldX;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.x -= 1;
+                }
+                playerPos.x ++; // for some reason the while loop makes this
+                                // one too low, locking the player in place.
+                                // so this makes the value as it should be.
             }
         }
-    }
-    else if (event.code === "ArrowUp") {
-        playerPos.y -= playerSpeed;
-        if (checkForCollisions("rectangles")) {
-            playerPos.y = oldPos.y;
-            while (!checkForCollisions("rectangles")) {
-                playerPos.y -= 1;
+        else if (event.code === "ArrowUp") {
+            playerPos.y -= playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.y = oldY;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.y -= 1;
+                }
+                playerPos.y ++;
             }
         }
-    }
-    else if (event.code === "ArrowRight") {
-        playerPos.x += playerSpeed;
-        if (checkForCollisions("rectangles")) {
-            playerPos.x = oldPos.x;
-            while (!checkForCollisions("rectangles")) {
-                playerPos.x += 1;
+        else if (event.code === "ArrowRight") {
+            playerPos.x += playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.x = oldX;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.x += 1;
+                }
+                playerPos.x --;
             }
         }
-    }
-    else if (event.code === "ArrowDown") {
-        playerPos.y += playerSpeed;
-        if (checkForCollisions("rectangles")) {
-            playerPos.y = oldPos.y;
-            while (!checkForCollisions("rectangles")) {
-                playerPos.y += 1;
+        else if (event.code === "ArrowDown") {
+            playerPos.y += playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.y = oldY;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.y += 1;
+                }
+                playerPos.y --;
             }
         }
-    }
-    if (checkForCollisions("rectangles")) {
-        playerPos = oldPos;
-    }
+    })();
     background(playerPos.x % 100, playerPos.y % 100);
     drawObjects("rectangles");
     drawPlayer();
