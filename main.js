@@ -1,8 +1,16 @@
+// a simple game using canvas.
+// this could probably do with more comments. but oh well
+
+
+// lots of configs...
 var playerPos = {
     "x": 0,
     "y": 0
 };
-
+var gravityData = {
+    "active": true,
+    "timeFallen": 0
+}
 var playerSpeed = 6;
 var playerSize = 50;
 var keydata = {
@@ -43,16 +51,29 @@ var objects = {
     ]
 };
 
+/* returns true if a number is between two values. 
+   for example: 
+
+   8.between(2, 12)
+   -> true
+
+   8.between(10, 20)
+   -> false
+
+   ** stolen from stackoverflow
+*/
 Number.prototype.between = function(a, b) {
     var min = Math.min.apply(Math, [a, b]),
         max = Math.max.apply(Math, [a, b]);
     return this > min && this < max;
 };
 
+
 async function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// draw a checkerboard background. 
 function background(offsetX, offsetY) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
@@ -127,16 +148,28 @@ function drawPlayer() {
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = '#3366ff';
     ctx.fillRect(canvas.width/2, canvas.height/2, playerSize, playerSize);
-
 }
 
 function gravity() {
-    playerPos.y += playerSpeed;
-    if (checkForCollisions("rectangles")) {
-        playerPos.y -= playerSpeed;
-        while (!checkForCollisions("rectangles")) {
-            playerPos.y += 1;
-        }
+    let oldY = playerPos.y;
+    let fallAmount = 0;
+    console.log("GRAVITYTIMEFALLEN: " + gravityData.timeFallen);
+    if (gravityData.timeFallen < 18 && gravityData.timeFallen !== 0) {
+        fallAmount = gravityData.timeFallen;
+    }
+    else {
+        fallAmount = 18;
+    }
+    for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+        playerPos.y ++;
+    }
+    playerPos.y --;
+    if (playerPos.y === oldY) {
+        // this means the player has fallen
+        gravityData.timeFallen = 0;
+    }
+    else {
+        gravityData.timeFallen ++;
     }
 }
 
@@ -191,7 +224,7 @@ function mainloop() {
     }
 
     // process stuff like gravity, etc
-    // gravity();
+    gravity();
 
     // draw the screen!
     background(playerPos.x % 100, playerPos.y % 100);
