@@ -3,8 +3,17 @@ var playerPos = {
     "y": 0
 };
 
-var playerSpeed = 8;
+var playerSpeed = 6;
 var playerSize = 50;
+var keydata = {
+    "any": false,
+    "arrows": {
+        "up":    false,
+        "down":  false,
+        "left":  false,
+        "right": false
+    }
+}
 var objects = {
     "rectangles": [
         {
@@ -47,17 +56,25 @@ async function wait(ms) {
 function background(offsetX, offsetY) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
+    let count = 0;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#eeeeee';
     for (let i = -150; i < canvas.width + 100; i += 50) {
-        /* 
-            TODO HERE:
-            make the fillStyle swich only twice, and draw 
-            all of the squares of a single color at once.
-            This will make it so that the fillStyle is only
-            set twice, significantly improving performance.
-        */
         for (let j = -150; j < canvas.height + 100; j += 50) {
-            "#eeeeee" == ctx.fillStyle ? ctx.fillStyle = "#cccccc" : ctx.fillStyle = "#eeeeee";
-            ctx.fillRect(i - offsetX, j - offsetY, 50, 50);
+            if (count % 2 === 0) {
+                ctx.fillRect(i - offsetX, j - offsetY, 50, 50);
+            }
+            count++;
+        }
+    }
+    count = 0;
+    ctx.fillStyle = '#cccccc';
+    for (let i = -150; i < canvas.width + 100; i += 50) {
+        for (let j = -150; j < canvas.height + 100; j += 50) {
+            if (count % 2 === 1) {
+                ctx.fillRect(i - offsetX, j - offsetY, 50, 50);
+            }
+            count++;
         }
     }
 }
@@ -124,49 +141,24 @@ function gravity() {
 }
 
 function mainloop() {
-    gravity();
-    background(playerPos.x, playerPos.y);
-    drawObjects("rectangles");
-    drawPlayer();
-}
 
-document.addEventListener("keydown", async function(event) {
-    let oldX = playerPos.x;
-    let oldY = playerPos.y;
-    await (async function() {
-        if (event.code === "ArrowLeft") {
-            playerPos.x -= playerSpeed;
-            if (checkForCollisions("rectangles")) {
-                playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
-                    playerPos.x -= 1;
-                }
-                playerPos.x ++; // for some reason the while loop makes this
-                                // one too low, locking the player in place.
-                                // so this makes the value as it should be.
-            }
-        }
-        else if (event.code === "ArrowUp") {
+    // check for any key presses, and do stuff based on them.
+    if (keydata.any) {
+        let oldX = playerPos.x;
+        let oldY = playerPos.y;
+        if (keydata.arrows.up) {
             playerPos.y -= playerSpeed;
             if (checkForCollisions("rectangles")) {
                 playerPos.y = oldY;
                 while (!checkForCollisions("rectangles")) {
                     playerPos.y -= 1;
                 }
-                playerPos.y ++;
+                playerPos.y ++; // for some reason the while loop makes this
+                                // one too low, locking the player in place.
+                                // so this makes the value as it should be.
             }
         }
-        else if (event.code === "ArrowRight") {
-            playerPos.x += playerSpeed;
-            if (checkForCollisions("rectangles")) {
-                playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
-                    playerPos.x += 1;
-                }
-                playerPos.x --;
-            }
-        }
-        else if (event.code === "ArrowDown") {
+        else if (keydata.arrows.down) {
             playerPos.y += playerSpeed;
             if (checkForCollisions("rectangles")) {
                 playerPos.y = oldY;
@@ -176,12 +168,91 @@ document.addEventListener("keydown", async function(event) {
                 playerPos.y --;
             }
         }
-    })();
+        else if (keydata.arrows.left) {
+            playerPos.x -= playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.x = oldX;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.x -= 1;
+                }
+                playerPos.x ++; 
+            }
+        }
+        else if (keydata.arrows.right) {
+            playerPos.x += playerSpeed;
+            if (checkForCollisions("rectangles")) {
+                playerPos.x = oldX;
+                while (!checkForCollisions("rectangles")) {
+                    playerPos.x += 1;
+                }
+                playerPos.x --;
+            }
+        }
+    }
+
+    // process stuff like gravity, etc
+    // gravity();
+
+    // draw the screen!
     background(playerPos.x % 100, playerPos.y % 100);
     drawObjects("rectangles");
     drawPlayer();
+}
+
+
+// key event handlers
+document.addEventListener("keydown", function(event) {
+    if (event.code === "ArrowLeft") {
+        keydata.any = true;
+        keydata.arrows.left = true;
+    }
+    else if (event.code === "ArrowUp") {
+        keydata.any = true;
+        keydata.arrows.up = true;
+    }
+    else if (event.code === "ArrowRight") {
+        keydata.any = true;
+        keydata.arrows.right = true;
+    }
+    else if (event.code === "ArrowDown") {
+        keydata.any = true;
+        keydata.arrows.down = true;
+    }
 });
 
-background(0, 0);
+document.addEventListener("keyup", function(event) {
+    if (event.code === "ArrowLeft") {
+        keydata.arrows.left = false;
+    }
+    else if (event.code === "ArrowUp") {
+        keydata.arrows.up = false;
+    }
+    else if (event.code === "ArrowRight") {
+        keydata.arrows.right = false;
+    }
+    else if (event.code === "ArrowDown") {
+        keydata.arrows.down = false;
+    }
+    if (
+        !keydata.arrows.left   &&
+        !keydata.arrows.up     &&
+        !keydata.arrows.right  &&
+        !keydata.arrows.down  
+    ) {
+        keydata.any = false;
+    }
+});
+
+background(playerPos.x % 100, playerPos.y % 100);
 drawObjects("rectangles");
 drawPlayer();
+
+// Main Loop!
+async function main() {
+    while (true) {
+        mainloop();
+        await wait(30);
+    }
+}
+
+main();
