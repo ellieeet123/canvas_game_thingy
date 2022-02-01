@@ -63,9 +63,7 @@ var objects = {
    ** stolen from stackoverflow
 */
 Number.prototype.between = function(a, b) {
-    var min = Math.min.apply(Math, [a, b]),
-        max = Math.max.apply(Math, [a, b]);
-    return this > min && this < max;
+    return this > Math.min(a,b) && this < Math.max(a,b);
 };
 
 
@@ -135,7 +133,6 @@ function checkForCollisions(type) {
                 ) // y-axis
 
             ) {
-                console.log("Collision detected " + currentObject.color);
                 return true;
             }
         }
@@ -153,7 +150,7 @@ function drawPlayer() {
 function gravity() {
     let oldY = playerPos.y;
     let fallAmount = 0;
-    console.log("GRAVITYTIMEFALLEN: " + gravityData.timeFallen);
+    // console.log("GRAVITYTIMEFALLEN: " + gravityData.timeFallen);
     if (gravityData.timeFallen < 18 && gravityData.timeFallen !== 0) {
         fallAmount = gravityData.timeFallen;
     }
@@ -165,10 +162,14 @@ function gravity() {
     }
     playerPos.y --;
     if (playerPos.y === oldY) {
-        // this means the player has fallen
+        // this means the player hasn't fallen
         gravityData.timeFallen = 0;
     }
     else {
+        console.log('not poggers');
+        console.log(playerPos.y);
+        console.log(oldY);
+        console.log(gravityData.timeFallen);
         gravityData.timeFallen ++;
     }
 }
