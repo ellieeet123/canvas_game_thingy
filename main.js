@@ -12,8 +12,11 @@ var mspf = 0; // milliseconds per frame
 var min_mspf = 1;
 var gravityData = {
     "active": true,
-    "timeFallen": 1
+    "activeLastTick": true,
+    "timeFallen": 2,
+    "prevFall": 0
 }
+var jumping = false;
 var playerSpeed = 7;
 var playerSize = 50;
 var keydata = {
@@ -49,6 +52,14 @@ var objects = {
             "endx": -150,
             "endy": -750,
             "color": "#7722ff",
+            "collide": true
+        },
+        {
+            "startx": 130,
+            "starty": -50,
+            "endx": 330,
+            "endy": -30,
+            "color": "#000000",
             "collide": true
         }
     ]
@@ -151,51 +162,70 @@ function drawPlayer() {
 }
 
 function gravity() {
+    if (gravityData.active !== gravityData.activeLastTick) {
+        // gravity has been reversed since last processing tick, so
+        // all variables must be reset
+        gravityData.timeFallen = 2;
+        gravityData.prevFall = 0;
+
+    }
     let oldY = playerPos.y;
-    let fallAmount = 0;
-    // console.log("GRAVITYTIMEFALLEN: " + gravityData.timeFallen);
-    if (gravityData.timeFallen < 18 && gravityData.timeFallen !== 0) {
-        fallAmount = gravityData.timeFallen;
+    let fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
+    if (fallAmount >= 35) {
+        fallAmount = 35;
     }
-    else if (gravityData.timeFallen === 0) {
-        fallAmount = 2;
+    if (gravityData.active) {
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+            playerPos.y ++;
+        }
     }
     else {
-        fallAmount = 18;
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+            playerPos.y --;
+        }
     }
-    for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
-        playerPos.y ++;
+    if (fallAmount !== 0) {
+        playerPos.y --;
     }
-    playerPos.y --;
     if (playerPos.y === oldY) {
-        console.log('didnt fall ' + fallAmount);
         // this means the player hasn't fallen
-        gravityData.timeFallen = 1;
+        gravityData.timeFallen = 2;
+        gravityData.prevFall = 0;
     }
     else {
-        console.log('did fall ' + fallAmount);
         gravityData.timeFallen ++;
+        gravityData.prevFall = fallAmount;
     }
+    gravityData.activeLastTick = gravityData.active;
+}
+async function jump() {
+    return new Promise(resolve => {
+        playerPos.y ++;
+        if (checkForCollisions("rectangles")) {
+            // this only happens if there is a platform below the player
+            playerPos.y --;
+            gravityData.active = false;
+            await wait(300);
+            gravityData.active = true;
+        }
+        else {
+            playerPos.y --;
+        }
+    });
 }
 
-function mainloop() {
+async function mainloop() {
     // main processing loop. does not draw the screen. 
     // check for any key presses, and do stuff based on them.
     if (keydata.any) {
         let oldX = playerPos.x;
         let oldY = playerPos.y;
-        if (keydata.arrows.up) {
-            playerPos.y -= playerSpeed;
-            if (checkForCollisions("rectangles")) {
-                playerPos.y = oldY;
-                while (!checkForCollisions("rectangles")) {
-                    playerPos.y -= 1;
-                }
-                playerPos.y ++; // for some reason the while loop makes this
-                                // one too low, locking the player in place.
-                                // so this makes the value as it should be.
-            }
+        if (keydata.arrows.up && !jumping) {
+            jumping = true;
+            await jump();
+            jumping = false;
         }
+        /*
         else if (keydata.arrows.down) {
             playerPos.y += playerSpeed;
             if (checkForCollisions("rectangles")) {
@@ -206,6 +236,7 @@ function mainloop() {
                 playerPos.y --;
             }
         }
+        */
         else if (keydata.arrows.left) {
             playerPos.x -= playerSpeed;
             if (checkForCollisions("rectangles")) {
@@ -213,7 +244,9 @@ function mainloop() {
                 while (!checkForCollisions("rectangles")) {
                     playerPos.x -= 1;
                 }
-                playerPos.x ++; 
+                playerPos.x ++; // for some reason the while loop makes this
+                                // one too low, locking the player in place.
+                                // so this makes the value as it should be.
             }
         }
         else if (keydata.arrows.right) {
