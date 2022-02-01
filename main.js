@@ -7,11 +7,14 @@ var playerPos = {
     "x": 0,
     "y": 0
 };
+var fps = 0;
+var mspf = 0; // milliseconds per frame
+var min_mspf = 1;
 var gravityData = {
     "active": true,
-    "timeFallen": 0
+    "timeFallen": 1
 }
-var playerSpeed = 6;
+var playerSpeed = 7;
 var playerSize = 50;
 var keydata = {
     "any": false,
@@ -154,6 +157,9 @@ function gravity() {
     if (gravityData.timeFallen < 18 && gravityData.timeFallen !== 0) {
         fallAmount = gravityData.timeFallen;
     }
+    else if (gravityData.timeFallen === 0) {
+        fallAmount = 2;
+    }
     else {
         fallAmount = 18;
     }
@@ -162,20 +168,18 @@ function gravity() {
     }
     playerPos.y --;
     if (playerPos.y === oldY) {
+        console.log('didnt fall ' + fallAmount);
         // this means the player hasn't fallen
-        gravityData.timeFallen = 0;
+        gravityData.timeFallen = 1;
     }
     else {
-        console.log('not poggers');
-        console.log(playerPos.y);
-        console.log(oldY);
-        console.log(gravityData.timeFallen);
+        console.log('did fall ' + fallAmount);
         gravityData.timeFallen ++;
     }
 }
 
 function mainloop() {
-
+    // main processing loop. does not draw the screen. 
     // check for any key presses, and do stuff based on them.
     if (keydata.any) {
         let oldX = playerPos.x;
@@ -226,11 +230,6 @@ function mainloop() {
 
     // process stuff like gravity, etc
     gravity();
-
-    // draw the screen!
-    background(playerPos.x % 100, playerPos.y % 100);
-    drawObjects("rectangles");
-    drawPlayer();
 }
 
 
@@ -281,12 +280,38 @@ background(playerPos.x % 100, playerPos.y % 100);
 drawObjects("rectangles");
 drawPlayer();
 
-// Main Loop!
-async function main() {
+async function drawloop() {
+    while (true) {
+        let start = Date.now();
+        background(playerPos.x % 100, playerPos.y % 100);
+        drawObjects("rectangles");
+        drawPlayer();
+        await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
+        let end = Date.now();
+        fps = Math.round((1000 / (end - start)));
+        mspf = end - start;
+        if (fps === Infinity) {
+            fps = 1001;
+        }
+    }
+}
+
+async function fpsloop() {
+    while (true) {
+        // only update the fps 3x every second, to make it readable.
+        document.getElementById('fps').innerHTML = 'FPS: ' + fps + '<br>(' + mspf + ' ms per frame)';
+        await wait(333);
+    }
+}
+
+async function processloop() {
     while (true) {
         mainloop();
         await wait(30);
     }
 }
 
-main();
+// start this thing!
+drawloop();
+processloop();
+fpsloop();
