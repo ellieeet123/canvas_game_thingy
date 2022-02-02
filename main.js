@@ -1,8 +1,6 @@
 // a simple game using canvas.
 // this could probably do with more comments. but oh well
 
-(function(){
-
 // lots of configs...
 var playerPos = {
     "x": 0,
@@ -502,7 +500,5 @@ drawPlayer();
 drawloop();
 processloop();
 fpsloop();
-
-})();
 
 // holy crap, javascript is really annoying sometimes.
