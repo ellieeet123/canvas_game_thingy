@@ -56,9 +56,17 @@ var objects = {
         },
         {
             "startx": 130,
-            "starty": -50,
+            "starty": 30,
             "endx": 330,
-            "endy": -30,
+            "endy": 50,
+            "color": "#000000",
+            "collide": true
+        },
+        {
+            "startx": 130,
+            "starty": 130,
+            "endx": 280,
+            "endy": 150,
             "color": "#000000",
             "collide": true
         }
@@ -170,9 +178,16 @@ function gravity() {
 
     }
     let oldY = playerPos.y;
-    let fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
-    if (fallAmount >= 35) {
-        fallAmount = 35;
+    if (gravityData.active) {
+        var fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
+        if (fallAmount >= 35) {
+            fallAmount = 35;
+        }
+    }
+    else {
+        // big ugly equation, calculates jump height.
+        var fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
+        console.log(fallAmount, gravityData.timeFallen);
     }
     if (gravityData.active) {
         for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
@@ -185,7 +200,14 @@ function gravity() {
         }
     }
     if (fallAmount !== 0) {
+        gravityData.active ? playerPos.y -- : playerPos.y ++;
+    }
+    if (!gravityData.active) {
         playerPos.y --;
+        if (checkForCollisions("rectangles")) {
+            gravityData.active = true;
+        }
+        playerPos.y ++;
     }
     if (playerPos.y === oldY) {
         // this means the player hasn't fallen
@@ -198,8 +220,9 @@ function gravity() {
     }
     gravityData.activeLastTick = gravityData.active;
 }
+
 async function jump() {
-    return new Promise(resolve => {
+    return new Promise(async function (resolve) {
         playerPos.y ++;
         if (checkForCollisions("rectangles")) {
             // this only happens if there is a platform below the player
@@ -211,6 +234,7 @@ async function jump() {
         else {
             playerPos.y --;
         }
+        resolve();
     });
 }
 
@@ -309,10 +333,6 @@ document.addEventListener("keyup", function(event) {
     }
 });
 
-background(playerPos.x % 100, playerPos.y % 100);
-drawObjects("rectangles");
-drawPlayer();
-
 async function drawloop() {
     while (true) {
         let start = Date.now();
@@ -345,6 +365,14 @@ async function processloop() {
 }
 
 // start this thing!
+// draw the initial frame
+background(playerPos.x % 100, playerPos.y % 100);
+drawObjects("rectangles");
+drawPlayer();
+
+// start the main loops
 drawloop();
 processloop();
 fpsloop();
+
+// holy crap, javascript is really annoying sometimes.
