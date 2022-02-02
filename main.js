@@ -1,6 +1,7 @@
 // a simple game using canvas.
 // this could probably do with more comments. but oh well
 
+(function(){
 
 // lots of configs...
 var playerPos = {
@@ -28,10 +29,30 @@ var keydata = {
         "right": false
     }
 }
+/*
+===== Epic guide to making objects =====
+
+RECTANGLES: 
+the startx and starty values will form the corner of the bottom left corner. 
+the endx and endy values will form the corner of the top right corner. 
+color obviously sets the color
+collide desides if collision physics will effect it. If it is set to false, the player
+will be able to pass right through it. 
+
+SPIKES: 
+equalateral triangles that kill you. 
+spikes are positioned based off of the smallest possible square that it could fit into.
+x and y form the bottom left corner of that square. 
+size (pixels) is how long each side of the tri (and also square) will be
+direction is where it will face (up, down, left, right, must be lowercase)
+color sets the color, and death sets if it can kill you or not
+collide desides if collision physics will effect it. If it is set to false, the player
+will be able to pass right through it. 
+*/
 var objects = {
     "rectangles": [
         {
-            "startx": -100,
+            "startx": -1000,
             "starty": -70,
             "endx": 100,
             "endy": -50,
@@ -65,9 +86,56 @@ var objects = {
         {
             "startx": 130,
             "starty": 130,
-            "endx": 280,
+            "endx": 250,
             "endy": 150,
             "color": "#000000",
+            "collide": true
+        }
+    ],
+    "spikes": [
+        {
+            "x": -100,
+            "y": 50,
+            "size": 25,
+            "direction": "up",
+            "color": "#00ffff",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -100,
+            "y": 25,
+            "size": 25,
+            "direction": "down",
+            "color": "#00ccff",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -75,
+            "y": 50,
+            "size": 25,
+            "direction": "right",
+            "color": "#0099ff",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -75,
+            "y": 25,
+            "size": 25,
+            "direction": "left",
+            "color": "#0066ff",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -200,
+            "y": -50,
+            "size": 50,
+            "direction": "up",
+            "color": "#aa26d1",
+            "death": true,
             "collide": true
         }
     ]
@@ -75,13 +143,10 @@ var objects = {
 
 /* returns true if a number is between two values. 
    for example: 
-
    8.between(2, 12)
    -> true
-
    8.between(10, 20)
    -> false
-
    ** stolen from stackoverflow
 */
 Number.prototype.between = function(a, b) {
@@ -120,53 +185,118 @@ function background(offsetX, offsetY) {
     }
 }
 
+/*  [type] can be one of the following:
+    - rectangles
+    - spikes
+*/
 function drawObjects(type) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
-    for (let i = 0; i < objects[type].length; i++) {
-        ctx.fillStyle = objects[type][i].color;
-        // ignore the mess below, it works
-        let startXCor = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].startx;
-        let startYCor = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].starty));
-        let endXCor   = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].endx;
-        let endYCor   = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].endy));
-        ctx.fillRect(
-            startXCor,
-            startYCor,
-            endXCor - startXCor,
-            endYCor - startYCor
-        );
+    if (type === 'rectangles') {
+        for (let i = 0; i < objects[type].length; i++) {
+            ctx.fillStyle = objects[type][i].color;
+            // ignore the mess below, it works
+            let startXCor = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].startx;
+            let startYCor = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].starty));
+            let endXCor   = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].endx;
+            let endYCor   = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].endy));
+            ctx.fillRect(
+                startXCor,
+                startYCor,
+                endXCor - startXCor,
+                endYCor - startYCor
+            );
+        }
+    }
+    else if (type === 'spikes') {
+        for (let i = 0; i < objects[type].length; i++) {
+            ctx.fillStyle = objects[type][i].color;
+            // calculating actual position on canvas
+            let xCor = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].x;
+            let yCor = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].y));
+            let size = objects[type][i].size;
+            ctx.beginPath();
+            // draw triangles
+            if (objects[type][i].direction === 'up') {
+                ctx.moveTo(xCor, yCor);
+                ctx.lineTo(xCor + size, yCor);
+                ctx.lineTo(xCor + (size / 2), yCor - size);
+            }
+            else if (objects[type][i].direction === 'down') {
+                ctx.moveTo(xCor, yCor - size);
+                ctx.lineTo(xCor + size, yCor - size);
+                ctx.lineTo(xCor + (size / 2), yCor)
+            }
+            else if (objects[type][i].direction === 'right') {
+                ctx.moveTo(xCor, yCor);
+                ctx.lineTo(xCor, yCor - size);
+                ctx.lineTo(xCor + size, yCor - (size / 2));
+            }
+            else if (objects[type][i].direction === 'left') {
+                ctx.moveTo(xCor + size, yCor);
+                ctx.lineTo(xCor + size, yCor - size);
+                ctx.lineTo(xCor, yCor - (size / 2));
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+    else {
+        throw new Error('drawObjects: type ' + type + ' is not a valid shape name');
     }
 }
 
 function checkForCollisions(type) {
-    for (let i = 0; i < objects[type].length; i++) {
-        if (objects[type][i].collide) {
-            let currentObject = objects[type][i];
-            if (
-                // warning: this is a mess
-                (((playerPos.x) < currentObject.endx) && 
-                (playerPos.x + playerSize) > currentObject.startx) // x-axis
-                &&
-                ((-playerPos.y).between(currentObject.starty, currentObject.endy) ||
-                ((-playerPos.y) - playerSize).between(currentObject.starty, currentObject.endy) ||
-                currentObject.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
-                currentObject.endy.between(-playerPos.y, -playerPos.y - playerSize)
-                ) // y-axis
+    if (type === 'rectangles') {
+        for (let i = 0; i < objects[type].length; i++) {
+            if (objects[type][i].collide) {
+                let currentObject = objects[type][i];
+                if (
+                    // warning: this is a mess. but it works somehow
+                    (playerPos.x < currentObject.endx && 
+                    playerPos.x + playerSize > currentObject.startx) // x-axis
+                    &&
+                    ((-playerPos.y).between(currentObject.starty, currentObject.endy) ||
+                    ((-playerPos.y) - playerSize).between(currentObject.starty, currentObject.endy) ||
+                    currentObject.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
+                    currentObject.endy.between(-playerPos.y, -playerPos.y - playerSize)
+                    ) // y-axis
 
-            ) {
-                return true;
+                ) {
+                    return true;
+                }
             }
         }
+        return false;
     }
-    return false;
+    else if (type === 'spikes') {
+        for (let i = 0; i < objects[type].length; i++) {
+            if (objects[type][i].collide) {
+                let currentObject = objects[type][i];
+                if (
+                    // TODO: this whole damn thing lmao
+                    true 
+                    &&
+                    true 
+                    &&
+                    true
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    else {
+        throw new Error('checkForCollisions: type ' + type + ' is not a valid shape name');
+    }
 }
 
 function drawPlayer() {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = '#3366ff';
-    ctx.fillRect(canvas.width/2, canvas.height/2, playerSize, playerSize);
+    ctx.fillRect(canvas.width / 2, canvas.height / 2, playerSize, playerSize);
 }
 
 function gravity() {
@@ -178,22 +308,29 @@ function gravity() {
 
     }
     let oldY = playerPos.y;
+    // normal falling amount calculator
     if (gravityData.active) {
         var fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
+        // limit the falling speed so that it doesn't get way too fast
         if (fallAmount >= 35) {
             fallAmount = 35;
         }
     }
+    // will go to the else if gravity is off (the player is jumping)
     else {
         // big ugly equation, calculates jump height.
         var fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
-        console.log(fallAmount, gravityData.timeFallen);
     }
+    // this loop is gravity is normal
     if (gravityData.active) {
+        // we check if there are collisions every pixel to make sure it doesn't fall into or through
+        // a block. fortunently this doesn't take much time at all, as the graphics aren't
+        // updated until all of this finishes
         for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
             playerPos.y ++;
         }
     }
+    // reversed gravity
     else {
         for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
             playerPos.y --;
@@ -202,6 +339,7 @@ function gravity() {
     if (fallAmount !== 0) {
         gravityData.active ? playerPos.y -- : playerPos.y ++;
     }
+    // immediately turn on gravity if the player's head hits something above it
     if (!gravityData.active) {
         playerPos.y --;
         if (checkForCollisions("rectangles")) {
@@ -210,7 +348,7 @@ function gravity() {
         playerPos.y ++;
     }
     if (playerPos.y === oldY) {
-        // this means the player hasn't fallen
+        // this means the player hasn't fallen, so vars are reset
         gravityData.timeFallen = 2;
         gravityData.prevFall = 0;
     }
@@ -249,18 +387,6 @@ async function mainloop() {
             await jump();
             jumping = false;
         }
-        /*
-        else if (keydata.arrows.down) {
-            playerPos.y += playerSpeed;
-            if (checkForCollisions("rectangles")) {
-                playerPos.y = oldY;
-                while (!checkForCollisions("rectangles")) {
-                    playerPos.y += 1;
-                }
-                playerPos.y --;
-            }
-        }
-        */
         else if (keydata.arrows.left) {
             playerPos.x -= playerSpeed;
             if (checkForCollisions("rectangles")) {
@@ -337,7 +463,8 @@ async function drawloop() {
     while (true) {
         let start = Date.now();
         background(playerPos.x % 100, playerPos.y % 100);
-        drawObjects("rectangles");
+        drawObjects('rectangles');
+        drawObjects('spikes');
         drawPlayer();
         await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
         let end = Date.now();
@@ -367,12 +494,15 @@ async function processloop() {
 // start this thing!
 // draw the initial frame
 background(playerPos.x % 100, playerPos.y % 100);
-drawObjects("rectangles");
+drawObjects('rectangles');
+drawObjects('spikes');
 drawPlayer();
 
 // start the main loops
 drawloop();
 processloop();
 fpsloop();
+
+})();
 
 // holy crap, javascript is really annoying sometimes.
