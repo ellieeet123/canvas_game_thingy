@@ -43,7 +43,7 @@ spikes are positioned based off of the smallest possible square that it could fi
 x and y form the bottom left corner of that square. 
 size (pixels) is how long each side of the tri (and also square) will be
 direction is where it will face (up, down, left, right, must be lowercase)
-color sets the color, and death sets if it can kill you or not
+color sets the color of the spike
 collide desides if collision physics will effect it. If it is set to false, the player
 will be able to pass right through it. 
 */
@@ -82,57 +82,199 @@ var objects = {
             "collide": true
         },
         {
-            "startx": 130,
+            "startx": -630,
             "starty": 130,
             "endx": 250,
             "endy": 150,
+            "color": "#000000",
+            "collide": true
+        },
+        {
+            "startx": -1000,
+            "starty": -470,
+            "endx": 100,
+            "endy": -460,
+            "color": "#ff0000",
+            "collide": true
+        },
+        {
+            "startx": -1000,
+            "starty": -10000,
+            "endx": 1000,
+            "endy": -10010,
+            "color": "#209920",
+            "collide": true
+        },
+        {
+            "startx": -640,
+            "starty": 0,
+            "endx": -230,
+            "endy": 10,
             "color": "#000000",
             "collide": true
         }
     ],
     "spikes": [
         {
-            "x": -100,
-            "y": 50,
+            "x": -400,
+            "y": -50,
             "size": 25,
             "direction": "up",
-            "color": "#00ffff",
+            "color": "#e67923",
             "death": true,
             "collide": true
         },
         {
-            "x": -100,
-            "y": 25,
+            "x": -425,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -450,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -475,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -500,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -525,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -550,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -575,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -600,
+            "y": -50,
+            "size": 25,
+            "direction": "up",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+////////////////////////////////////////////////////////////////////////////
+        {
+            "x": -400,
+            "y": 105,
             "size": 25,
             "direction": "down",
-            "color": "#00ccff",
+            "color": "#e67923",
             "death": true,
             "collide": true
         },
         {
-            "x": -75,
-            "y": 50,
+            "x": -425,
+            "y": 105,
             "size": 25,
-            "direction": "right",
-            "color": "#0099ff",
+            "direction": "down",
+            "color": "#e67923",
             "death": true,
             "collide": true
         },
         {
-            "x": -75,
-            "y": 25,
+            "x": -450,
+            "y": 105,
             "size": 25,
-            "direction": "left",
-            "color": "#0066ff",
+            "direction": "down",
+            "color": "#e67923",
             "death": true,
             "collide": true
         },
         {
-            "x": -200,
-            "y": -50,
-            "size": 50,
-            "direction": "up",
-            "color": "#aa26d1",
+            "x": -475,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -500,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -525,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -550,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -575,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
+            "death": true,
+            "collide": true
+        },
+        {
+            "x": -600,
+            "y": 105,
+            "size": 25,
+            "direction": "down",
+            "color": "#e67923",
             "death": true,
             "collide": true
         }
@@ -153,6 +295,34 @@ Number.prototype.between = function(a, b) {
 
 async function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// returns true if a point is inside a triangle with vertices A, B, C
+// from https://stackoverflow.com/a/9747983
+// vec and dot are helper functions for pointInTriangle, taken from the same source
+function vec(from, to) {  
+    return [to[0] - from[0], to[1] - from[1]];
+}
+function dot(u, v) {
+    return u[0] * v[0] + u[1] * v[1];
+}
+function pointInTriange(P, A, B, C) {
+    // Compute vectors        
+    var v0 = vec(A, C);
+    var v1 = vec(A, B);
+    var v2 = vec(A, P);
+    // Compute dot products
+    var dot00 = dot(v0, v0);
+    var dot01 = dot(v0, v1);
+    var dot02 = dot(v0, v2);
+    var dot11 = dot(v1, v1);
+    var dot12 = dot(v1, v2);
+    // Compute barycentric coordinates
+    var invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
+    var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+    // Check if point is in triangle
+    return (u >= 0) && (v >= 0) && (u + v < 1);
 }
 
 // draw a checkerboard background. 
@@ -215,34 +385,11 @@ function drawObjects(type) {
             let y2 = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].points[1][1]));
             let x3 = (canvas.width  / 2) + (-(playerPos.x)) +    objects[type][i].points[2][0];
             let y3 = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].points[2][1]));
-            let size = objects[type][i].size;
-            ctx.beginPath();
             // draw triangles
+            ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.lineTo(x3, y3);
-            /*
-            if (objects[type][i].direction === 'up') {
-                ctx.moveTo(xCor, yCor);
-                ctx.lineTo(xCor + size, yCor);
-                ctx.lineTo(xCor + (size / 2), yCor - size);
-            }
-            else if (objects[type][i].direction === 'down') {
-                ctx.moveTo(xCor, yCor - size);
-                ctx.lineTo(xCor + size, yCor - size);
-                ctx.lineTo(xCor + (size / 2), yCor)
-            }
-            else if (objects[type][i].direction === 'right') {
-                ctx.moveTo(xCor, yCor);
-                ctx.lineTo(xCor, yCor - size);
-                ctx.lineTo(xCor + size, yCor - (size / 2));
-            }
-            else if (objects[type][i].direction === 'left') {
-                ctx.moveTo(xCor + size, yCor);
-                ctx.lineTo(xCor + size, yCor - size);
-                ctx.lineTo(xCor, yCor - (size / 2));
-            }
-            */
             ctx.closePath();
             ctx.fill();
         }
@@ -307,8 +454,8 @@ function checkForCollisions(type) {
                     currentObject.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
                     currentObject.endy.between(-playerPos.y, -playerPos.y - playerSize)
                     ) // y-axis
-
                 ) {
+                    if (currentObject.eeeee) {console.log('eeeee')}
                     return true;
                 }
             }
@@ -319,28 +466,47 @@ function checkForCollisions(type) {
         for (let i = 0; i < objects[type].length; i++) {
             if (objects[type][i].collide) {
                 let currentObject = objects[type][i];
-                if (currentObject.direction === 'up') {
+                if (
                     // check for individual points on triangle
-                    if (
-                        // TODO: this whole damn thing lmao
-                        (currentObject.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
-                         currentObject.points[0][1].between(playerPos.y, playerPos.y - playerSize))
-                        ||
-                        (currentObject.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
-                         currentObject.points[1][1].between(playerPos.y, playerPos.y - playerSize)) 
-                        ||
-                        (currentObject.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
-                         currentObject.points[2][1].between(playerPos.y, playerPos.y - playerSize))
-                    ) {
-                        console.log('spikey boi');
-                        return true;
-                    }
+                    (currentObject.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
+                     currentObject.points[0][1].between(-playerPos.y, -playerPos.y - playerSize))
+                    ||
+                    (currentObject.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
+                     currentObject.points[1][1].between(-playerPos.y, -playerPos.y - playerSize)) 
+                    ||
+                    (currentObject.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
+                     currentObject.points[2][1].between(-playerPos.y, -playerPos.y - playerSize))
+                ) {
+                    return true;
                 }
-                else if (currentObject.direction === 'down') {
-                }
-                else if (currentObject.direction === 'left') {
-                }
-                else if (currentObject.direction === 'right') {
+                else if (
+                    // check if individual corners of the player are inside the triangle
+                    pointInTriange(
+                        [playerPos.x, -playerPos.y],
+                        [currentObject.points[0][0], currentObject.points[0][1]], 
+                        [currentObject.points[1][0], currentObject.points[1][1]], 
+                        [currentObject.points[2][0], currentObject.points[2][1]]
+                    ) ||
+                    pointInTriange(
+                        [playerPos.x + playerSize, -playerPos.y],
+                        [currentObject.points[0][0], currentObject.points[0][1]],
+                        [currentObject.points[1][0], currentObject.points[1][1]],
+                        [currentObject.points[2][0], currentObject.points[2][1]]
+                    ) ||
+                    pointInTriange(
+                        [playerPos.x, -playerPos.y - playerSize],
+                        [currentObject.points[0][0], currentObject.points[0][1]],
+                        [currentObject.points[1][0], currentObject.points[1][1]],
+                        [currentObject.points[2][0], currentObject.points[2][1]]
+                    ) ||
+                    pointInTriange(
+                        [playerPos.x + playerSize, -playerPos.y - playerSize],
+                        [currentObject.points[0][0], currentObject.points[0][1]],
+                        [currentObject.points[1][0], currentObject.points[1][1]],
+                        [currentObject.points[2][0], currentObject.points[2][1]]
+                    )
+                ) {
+                    return true;
                 }
             }
         }
@@ -385,13 +551,13 @@ function gravity() {
         // we check if there are collisions every pixel to make sure it doesn't fall into or through
         // a block. fortunently this doesn't take much time at all, as the graphics aren't
         // updated until all of this finishes
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles") && !checkForCollisions('spikes'); i++) {
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
             playerPos.y ++;
         }
     }
     // reversed gravity
     else {
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles") && !checkForCollisions('spikes'); i++) {
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
             playerPos.y --;
         }
     }
@@ -401,7 +567,7 @@ function gravity() {
     // immediately turn on gravity if the player's head hits something above it
     if (!gravityData.active) {
         playerPos.y --;
-        if (checkForCollisions('rectangles') || checkForCollisions('spikes')) {
+        if (checkForCollisions('rectangles')) {
             gravityData.active = true;
         }
         playerPos.y ++;
@@ -421,7 +587,7 @@ function gravity() {
 async function jump() {
     return new Promise(async function (resolve) {
         playerPos.y ++;
-        if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
+        if (checkForCollisions("rectangles")) {
             // this only happens if there is a platform below the player
             playerPos.y --;
             gravityData.active = false;
@@ -440,7 +606,6 @@ async function mainloop() {
     // check for any key presses, and do stuff based on them.
     if (keydata.any) {
         let oldX = playerPos.x;
-        let oldY = playerPos.y;
         if (keydata.arrows.up && !jumping) {
             jumping = true;
             await jump();
@@ -448,9 +613,9 @@ async function mainloop() {
         }
         else if (keydata.arrows.left) {
             playerPos.x -= playerSpeed;
-            if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
+            if (checkForCollisions("rectangles")) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles") && !checkForCollisions('spikes')) {
+                while (!checkForCollisions("rectangles")) {
                     playerPos.x -= 1;
                 }
                 playerPos.x ++; // for some reason the while loop makes this
@@ -460,9 +625,9 @@ async function mainloop() {
         }
         else if (keydata.arrows.right) {
             playerPos.x += playerSpeed;
-            if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
+            if (checkForCollisions("rectangles")) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles") && !checkForCollisions('spikes')) {
+                while (!checkForCollisions("rectangles")) {
                     playerPos.x += 1;
                 }
                 playerPos.x --;
@@ -472,6 +637,13 @@ async function mainloop() {
 
     // process stuff like gravity, etc
     gravity();
+
+    // kill the player if it's touching a spike
+    if (checkForCollisions("spikes")) {
+        playerPos.x = 0;
+        playerPos.y = 0;
+        gravityData.active = true;
+    }
 }
 
 
