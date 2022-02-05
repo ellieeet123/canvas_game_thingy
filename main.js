@@ -16,7 +16,7 @@ var gravityData = {
     "prevFall": 0
 }
 var jumping = false;
-var playerSpeed = 7;
+var playerSpeed = 10;
 var playerSize = 50;
 var keydata = {
     "any": false,
@@ -151,7 +151,6 @@ Number.prototype.between = function(a, b) {
     return this > Math.min(a,b) && this < Math.max(a,b);
 };
 
-
 async function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -210,11 +209,19 @@ function drawObjects(type) {
         for (let i = 0; i < objects[type].length; i++) {
             ctx.fillStyle = objects[type][i].color;
             // calculating actual position on canvas
-            let xCor = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].x;
-            let yCor = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].y));
+            let x1 = (canvas.width  / 2) + (-(playerPos.x)) +    objects[type][i].points[0][0];
+            let y1 = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].points[0][1]));
+            let x2 = (canvas.width  / 2) + (-(playerPos.x)) +    objects[type][i].points[1][0];
+            let y2 = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].points[1][1]));
+            let x3 = (canvas.width  / 2) + (-(playerPos.x)) +    objects[type][i].points[2][0];
+            let y3 = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].points[2][1]));
             let size = objects[type][i].size;
             ctx.beginPath();
             // draw triangles
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.lineTo(x3, y3);
+            /*
             if (objects[type][i].direction === 'up') {
                 ctx.moveTo(xCor, yCor);
                 ctx.lineTo(xCor + size, yCor);
@@ -235,12 +242,53 @@ function drawObjects(type) {
                 ctx.lineTo(xCor + size, yCor - size);
                 ctx.lineTo(xCor, yCor - (size / 2));
             }
+            */
             ctx.closePath();
             ctx.fill();
         }
     }
     else {
         throw new Error('drawObjects: type ' + type + ' is not a valid shape name');
+    }
+}
+
+function addCoordsToSpikeObjects() {
+    // adds data for the actual cordinates of the trialgles to their data.
+    // this is done to improve speed, and readability, without having
+    // to spend too much time making the tris.
+    for (let i = 0; i < objects.spikes.length; i++) {
+        let xCor = objects.spikes[i].x;
+        let yCor = objects.spikes[i].y;
+        let size = objects.spikes[i].size;
+        let direction = objects.spikes[i].direction;
+        if (direction === 'up') {
+            objects.spikes[i].points = [
+                [xCor, yCor],
+                [xCor + size, yCor],
+                [xCor + (size / 2), yCor + size]
+            ]
+        }
+        else if (direction === 'down') {
+            objects.spikes[i].points = [
+                [xCor, yCor + size],
+                [xCor + size, yCor + size],
+                [xCor + (size / 2), yCor]
+            ]
+        }
+        else if (direction === 'right') {
+            objects.spikes[i].points = [
+                [xCor, yCor],
+                [xCor, yCor + size],
+                [xCor + size, yCor + (size / 2)],
+            ]
+        }
+        else if (direction === 'left') {
+            objects.spikes[i].points = [
+                [xCor + size, yCor],
+                [xCor + size, yCor + size],
+                [xCor, yCor + (size / 2)]
+            ]
+        }
     }
 }
 
@@ -271,15 +319,24 @@ function checkForCollisions(type) {
         for (let i = 0; i < objects[type].length; i++) {
             if (objects[type][i].collide) {
                 let currentObject = objects[type][i];
-                if (
-                    // TODO: this whole damn thing lmao
-                    true 
-                    &&
-                    true 
-                    &&
-                    true
-                ) {
-                    return true;
+                if (currentObject.direction === 'up') {
+                    // check for individual points on triangle
+                    if (
+                        // TODO: this whole damn thing lmao
+                        true
+                        ||
+                        true 
+                        ||
+                        true
+                    ) {
+                        return true;
+                    }
+                }
+                else if (currentObject.direction === 'down') {
+                }
+                else if (currentObject.direction === 'left') {
+                }
+                else if (currentObject.direction === 'right') {
                 }
             }
         }
@@ -420,7 +477,7 @@ document.addEventListener("keydown", function(event) {
         keydata.any = true;
         keydata.arrows.left = true;
     }
-    else if (event.code === "ArrowUp") {
+    else if (event.code === "ArrowUp" || event.code === "Space") {
         keydata.any = true;
         keydata.arrows.up = true;
     }
@@ -438,7 +495,7 @@ document.addEventListener("keyup", function(event) {
     if (event.code === "ArrowLeft") {
         keydata.arrows.left = false;
     }
-    else if (event.code === "ArrowUp") {
+    else if (event.code === "ArrowUp" || event.code === "Space") {
         keydata.arrows.up = false;
     }
     else if (event.code === "ArrowRight") {
@@ -490,6 +547,10 @@ async function processloop() {
 }
 
 // start this thing!
+
+// preprosessing
+addCoordsToSpikeObjects();
+
 // draw the initial frame
 background(playerPos.x % 100, playerPos.y % 100);
 drawObjects('rectangles');
