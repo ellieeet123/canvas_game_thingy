@@ -323,12 +323,16 @@ function checkForCollisions(type) {
                     // check for individual points on triangle
                     if (
                         // TODO: this whole damn thing lmao
-                        true
+                        (currentObject.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
+                         currentObject.points[0][1].between(playerPos.y, playerPos.y - playerSize))
                         ||
-                        true 
+                        (currentObject.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
+                         currentObject.points[1][1].between(playerPos.y, playerPos.y - playerSize)) 
                         ||
-                        true
+                        (currentObject.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
+                         currentObject.points[2][1].between(playerPos.y, playerPos.y - playerSize))
                     ) {
+                        console.log('spikey boi');
                         return true;
                     }
                 }
@@ -381,13 +385,13 @@ function gravity() {
         // we check if there are collisions every pixel to make sure it doesn't fall into or through
         // a block. fortunently this doesn't take much time at all, as the graphics aren't
         // updated until all of this finishes
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles") && !checkForCollisions('spikes'); i++) {
             playerPos.y ++;
         }
     }
     // reversed gravity
     else {
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles") && !checkForCollisions('spikes'); i++) {
             playerPos.y --;
         }
     }
@@ -397,7 +401,7 @@ function gravity() {
     // immediately turn on gravity if the player's head hits something above it
     if (!gravityData.active) {
         playerPos.y --;
-        if (checkForCollisions("rectangles")) {
+        if (checkForCollisions('rectangles') || checkForCollisions('spikes')) {
             gravityData.active = true;
         }
         playerPos.y ++;
@@ -417,7 +421,7 @@ function gravity() {
 async function jump() {
     return new Promise(async function (resolve) {
         playerPos.y ++;
-        if (checkForCollisions("rectangles")) {
+        if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
             // this only happens if there is a platform below the player
             playerPos.y --;
             gravityData.active = false;
@@ -444,9 +448,9 @@ async function mainloop() {
         }
         else if (keydata.arrows.left) {
             playerPos.x -= playerSpeed;
-            if (checkForCollisions("rectangles")) {
+            if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
+                while (!checkForCollisions("rectangles") && !checkForCollisions('spikes')) {
                     playerPos.x -= 1;
                 }
                 playerPos.x ++; // for some reason the while loop makes this
@@ -456,9 +460,9 @@ async function mainloop() {
         }
         else if (keydata.arrows.right) {
             playerPos.x += playerSpeed;
-            if (checkForCollisions("rectangles")) {
+            if (checkForCollisions("rectangles") || checkForCollisions('spikes')) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
+                while (!checkForCollisions("rectangles") && !checkForCollisions('spikes')) {
                     playerPos.x += 1;
                 }
                 playerPos.x --;
