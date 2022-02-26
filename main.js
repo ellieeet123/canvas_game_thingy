@@ -1,5 +1,5 @@
 // a simple game using canvas.
-// this could probably do with more comments. but oh well
+// this could probably do with more comments. but oh well 
 
 // lots of configs...
 var playerPos = {
@@ -10,8 +10,9 @@ var fps = 0;
 var mspf = 0; // milliseconds per frame
 var min_mspf = 1;
 var gravityData = {
-    "active": true,
-    "activeLastTick": true,
+    "on": true, // if false, gravity is completely disabled
+    "active": true, // set to false to reverse gravity
+    "activeLastTick": true, 
     "timeFallen": 2,
     "prevFall": 0
 }
@@ -27,6 +28,7 @@ var keydata = {
         "right": false
     }
 }
+var collisionschecked = 0;
 /*
 ===== Epic guide to making objects =====
 
@@ -36,6 +38,7 @@ the endx and endy values will form the corner of the top right corner.
 color obviously sets the color
 collide desides if collision physics will effect it. If it is set to false, the player
 will be able to pass right through it. 
+To make it an elevator, set the elevator attribute to true, and collide to false.
 
 SPIKES: 
 equalateral triangles that kill you. 
@@ -71,7 +74,17 @@ var objects = {
             "endx": -150,
             "endy": -750,
             "color": "#7722ff",
-            "collide": true
+            "collide": false,
+            "elevator": true
+        },
+        {
+            "startx": 140,
+            "starty": -70,
+            "endx": 160,
+            "endy": -750,
+            "color": "#7722ff",
+            "collide": false,
+            "elevator": true
         },
         {
             "startx": 130,
@@ -196,7 +209,6 @@ var objects = {
             "death": true,
             "collide": true
         },
-////////////////////////////////////////////////////////////////////////////
         {
             "x": -400,
             "y": 105,
@@ -278,16 +290,24 @@ var objects = {
             "death": true,
             "collide": true
         }
+    ],
+    "circles": [
+        {
+            "x": -100,
+            "y": -100,
+            "radius": 50,
+            "color": "#ff000044",
+        }
     ]
 };
 
-/* returns true if a number is between two values. 
-   for example: 
-   8.between(2, 12)
-   -> true
-   8.between(10, 20)
-   -> false
-   ** stolen from stackoverflow
+/*  returns true if a number is between two values. 
+    for example: 
+    8.between(2, 12)
+    -> true
+    8.between(10, 20)
+    -> false
+        - stolen from stackoverflow
 */
 Number.prototype.between = function(a, b) {
     return this > Math.min(a,b) && this < Math.max(a,b);
@@ -394,6 +414,18 @@ function drawObjects(type) {
             ctx.fill();
         }
     }
+    else if (type === 'circles') {
+        for (let i = 0; i < objects[type].length; i++) {
+            ctx.fillStyle = objects[type][i].color;
+            // calculating actual position on canvas
+            let x = (canvas.width  / 2) + (-(playerPos.x)) +    objects[type][i].x;
+            let y = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].y));
+            let r = objects[type][i].radius;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
     else {
         throw new Error('drawObjects: type ' + type + ' is not a valid shape name');
     }
@@ -439,81 +471,158 @@ function addCoordsToSpikeObjects() {
     }
 }
 
-function checkForCollisions(type) {
+function addTypesToObjects() {
+    // adds a type attribute to each object, based on the list that it's in (rectangles, spikes, circles)
+    for (let i = 0; i < objects.rectangles.length; i++) {
+        objects.rectangles[i].type = 'rectangles';
+    }
+    for (let i = 0; i < objects.spikes.length; i++) {
+        objects.spikes[i].type = 'spikes';
+    }
+    for (let i = 0; i < objects.circles.length; i++) {
+        objects.circles[i].type = 'circles';
+    }
+}
+
+function fixColorsOnElevators() {
+    // makes all elevator objects slightly transparent
+    var elevators = getElevators();
+    for (let i = 0; i < elevators.length; i++) {
+        elevators[i].color = elevators[i].color + '77';
+    }
+
+}
+
+function getElevators() {
+    var elevators = [];
+    for (let i = 0; i < objects.rectangles.length; i++) {
+        // get all elevator objects
+        if (objects.rectangles[i].elevator) {
+            elevators.push(objects.rectangles[i]);
+        }
+    }
+    return elevators;
+}
+
+function checkForAllCollisions(type) {
+    // checks for collisions between the player and all objects of the given type
+    // returns true if there is a collision, false otherwise
     if (type === 'rectangles') {
         for (let i = 0; i < objects[type].length; i++) {
-            if (objects[type][i].collide) {
-                let currentObject = objects[type][i];
-                if (
-                    // warning: this is a mess. but it works somehow
-                    (playerPos.x < currentObject.endx && 
-                    playerPos.x + playerSize > currentObject.startx) // x-axis
-                    &&
-                    ((-playerPos.y).between(currentObject.starty, currentObject.endy) ||
-                    ((-playerPos.y) - playerSize).between(currentObject.starty, currentObject.endy) ||
-                    currentObject.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
-                    currentObject.endy.between(-playerPos.y, -playerPos.y - playerSize)
-                    ) // y-axis
-                ) {
-                    if (currentObject.eeeee) {console.log('eeeee')}
-                    return true;
-                }
+            if (checkForCollision(objects[type][i]) === 'normal') {
+                return true;
             }
         }
-        return false;
     }
     else if (type === 'spikes') {
         for (let i = 0; i < objects[type].length; i++) {
-            if (objects[type][i].collide) {
-                let currentObject = objects[type][i];
-                if (
-                    // check for individual points on triangle
-                    (currentObject.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
-                     currentObject.points[0][1].between(-playerPos.y, -playerPos.y - playerSize))
-                    ||
-                    (currentObject.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
-                     currentObject.points[1][1].between(-playerPos.y, -playerPos.y - playerSize)) 
-                    ||
-                    (currentObject.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
-                     currentObject.points[2][1].between(-playerPos.y, -playerPos.y - playerSize))
-                ) {
-                    return true;
-                }
-                else if (
-                    // check if individual corners of the player are inside the triangle
-                    pointInTriange(
-                        [playerPos.x, -playerPos.y],
-                        [currentObject.points[0][0], currentObject.points[0][1]], 
-                        [currentObject.points[1][0], currentObject.points[1][1]], 
-                        [currentObject.points[2][0], currentObject.points[2][1]]
-                    ) ||
-                    pointInTriange(
-                        [playerPos.x + playerSize, -playerPos.y],
-                        [currentObject.points[0][0], currentObject.points[0][1]],
-                        [currentObject.points[1][0], currentObject.points[1][1]],
-                        [currentObject.points[2][0], currentObject.points[2][1]]
-                    ) ||
-                    pointInTriange(
-                        [playerPos.x, -playerPos.y - playerSize],
-                        [currentObject.points[0][0], currentObject.points[0][1]],
-                        [currentObject.points[1][0], currentObject.points[1][1]],
-                        [currentObject.points[2][0], currentObject.points[2][1]]
-                    ) ||
-                    pointInTriange(
-                        [playerPos.x + playerSize, -playerPos.y - playerSize],
-                        [currentObject.points[0][0], currentObject.points[0][1]],
-                        [currentObject.points[1][0], currentObject.points[1][1]],
-                        [currentObject.points[2][0], currentObject.points[2][1]]
-                    )
-                ) {
-                    return true;
-                }
+            if (checkForCollision(objects[type][i]) === 'normal') {
+                return true;
             }
         }
-        return false;
     }
     else {
-        throw new Error('checkForCollisions: type ' + type + ' is not a valid shape name');
+        throw new Error('checkForAllCollisions: type ' + type + ' is not a valid shape name');
+    }
+    return false;
+}
+
+function checkForAllElevatorCollisions() {
+    // checks for collisions between the player and all elevator objects
+    // returns true if there is a collision, false otherwise
+    var elevators = getElevators();
+    for (let i = 0; i < elevators.length; i++) {
+        if (checkForCollision(elevators[i]) === 'elevator') {
+            return true;
+        }
+    }
+    return false;
+}
+
+function checkForCollision(object) {
+    // checks for collisions between the player and the given object
+    // returns one of three strings:
+    // 'none' - no collision
+    // 'normal' - normal collision
+    // 'elevator' - collision with an elevator
+    collisionschecked++;
+    if (object.collide || object.elevator) {
+        if (object.type === 'rectangles') {
+            if (
+                // warning: this is a mess. but it works somehow
+                (playerPos.x < object.endx && 
+                playerPos.x + playerSize > object.startx) // x-axis
+                &&
+                ((-playerPos.y).between(object.starty, object.endy) ||
+                ((-playerPos.y) - playerSize).between(object.starty, object.endy) ||
+                object.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
+                object.endy.between(-playerPos.y, -playerPos.y - playerSize)
+                ) // y-axis
+            ) {
+                if (object.elevator) {
+                    return 'elevator';
+                }
+                else {
+                    return 'normal';
+                }
+            }
+            else {
+                return 'none';
+            }
+        }
+        else if (object.type === 'spikes') {
+            if (
+                // check for individual points on triangle
+                (object.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
+                object.points[0][1].between(-playerPos.y, -playerPos.y - playerSize))
+                ||
+                (object.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
+                object.points[1][1].between(-playerPos.y, -playerPos.y - playerSize)) 
+                ||
+                (object.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
+                object.points[2][1].between(-playerPos.y, -playerPos.y - playerSize))
+            ) {
+                return 'normal';
+            }
+            else if (
+                // check if individual corners of the player are inside the triangle
+                pointInTriange(
+                    [playerPos.x, -playerPos.y],
+                    [object.points[0][0], object.points[0][1]], 
+                    [object.points[1][0], object.points[1][1]], 
+                    [object.points[2][0], object.points[2][1]]
+                ) ||
+                pointInTriange(
+                    [playerPos.x + playerSize, -playerPos.y],
+                    [object.points[0][0], object.points[0][1]],
+                    [object.points[1][0], object.points[1][1]],
+                    [object.points[2][0], object.points[2][1]]
+                ) ||
+                pointInTriange(
+                    [playerPos.x, -playerPos.y - playerSize],
+                    [object.points[0][0], object.points[0][1]],
+                    [object.points[1][0], object.points[1][1]],
+                    [object.points[2][0], object.points[2][1]]
+                ) ||
+                pointInTriange(
+                    [playerPos.x + playerSize, -playerPos.y - playerSize],
+                    [object.points[0][0], object.points[0][1]],
+                    [object.points[1][0], object.points[1][1]],
+                    [object.points[2][0], object.points[2][1]]
+                )
+            ) {
+                return 'normal';
+            }
+            else {
+                return 'none';
+            }
+        }
+        else {
+            throw new Error('Failed to do collision check, object has type ' + object.type + ' which is invalid');
+        }
+    }
+    else {
+        return 'none';
     }
 }
 
@@ -525,69 +634,96 @@ function drawPlayer() {
 }
 
 function gravity() {
-    if (gravityData.active !== gravityData.activeLastTick) {
-        // gravity has been reversed since last processing tick, so
-        // all variables must be reset
-        gravityData.timeFallen = 2;
-        gravityData.prevFall = 0;
+    if (gravityData.on) {
+        if (gravityData.active !== gravityData.activeLastTick) {
+            // gravity has been reversed since last processing tick, so
+            // all variables must be reset
+            gravityData.timeFallen = 2;
+            gravityData.prevFall = 0;
 
-    }
-    let oldY = playerPos.y;
-    // normal falling amount calculator
-    if (gravityData.active) {
-        var fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
-        // limit the falling speed so that it doesn't get way too fast
-        if (fallAmount >= 35) {
-            fallAmount = 35;
         }
-    }
-    // will go to the else if gravity is off (the player is jumping)
-    else {
-        // big ugly equation, calculates jump height.
-        var fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
-    }
-    // this loop is gravity is normal
-    if (gravityData.active) {
-        // we check if there are collisions every pixel to make sure it doesn't fall into or through
-        // a block. fortunently this doesn't take much time at all, as the graphics aren't
-        // updated until all of this finishes
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
+        let oldY = playerPos.y;
+        // normal falling amount calculator
+        if (gravityData.active) {
+            var fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
+            // limit the falling speed so that it doesn't get way too fast
+            if (fallAmount >= 35) {
+                fallAmount = 35;
+            }
+        }
+        // will go to the else if gravity is off (the player is jumping)
+        else {
+            // big ugly equation, calculates jump height.
+            var fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
+        }
+        // this loop is gravity is normal
+        if (gravityData.active) {
+            // we check if there are collisions every pixel to make sure it doesn't fall into or through
+            // a block. fortunently this doesn't take much time at all, as the graphics aren't
+            // updated until all of this finishes
+            for (let i = 0; i < fallAmount && !checkForAllCollisions("rectangles") && !checkForAllElevatorCollisions(); i++) {
+                playerPos.y ++;
+            }
+        }
+        // reversed gravity
+        else {
+            for (let i = 0; i < fallAmount && !checkForAllCollisions("rectangles"); i++) {
+                playerPos.y --;
+            }
+        }
+        if (fallAmount !== 0) {
+            gravityData.active ? playerPos.y -- : playerPos.y ++;
+        }
+        // immediately turn on gravity if the player's head hits something above it
+        if (!gravityData.active) {
+            playerPos.y --;
+            if (checkForAllCollisions('rectangles')) {
+                gravityData.active = true;
+            }
             playerPos.y ++;
         }
-    }
-    // reversed gravity
-    else {
-        for (let i = 0; i < fallAmount && !checkForCollisions("rectangles"); i++) {
-            playerPos.y --;
+        if (playerPos.y === oldY) {
+            // this means the player hasn't fallen, so vars are reset
+            gravityData.timeFallen = 2;
+            gravityData.prevFall = 0;
         }
-    }
-    if (fallAmount !== 0) {
-        gravityData.active ? playerPos.y -- : playerPos.y ++;
-    }
-    // immediately turn on gravity if the player's head hits something above it
-    if (!gravityData.active) {
-        playerPos.y --;
-        if (checkForCollisions('rectangles')) {
-            gravityData.active = true;
+        else {
+            gravityData.timeFallen ++;
+            gravityData.prevFall = fallAmount;
         }
-        playerPos.y ++;
+        gravityData.activeLastTick = gravityData.active;
     }
-    if (playerPos.y === oldY) {
-        // this means the player hasn't fallen, so vars are reset
-        gravityData.timeFallen = 2;
-        gravityData.prevFall = 0;
-    }
-    else {
-        gravityData.timeFallen ++;
-        gravityData.prevFall = fallAmount;
-    }
-    gravityData.activeLastTick = gravityData.active;
+}
+
+async function elevator() {
+    return new Promise(resolve => {
+        // idk if this really has to be a promise but oh well
+        var elevators = getElevators();
+        for (let i = 0; i < elevators.length; i++) {
+            if (checkForCollision(elevators[i]) === 'elevator') {
+                for (let j = 0; j < 24; j++) {
+                    playerPos.y -= 1;
+                    if (checkForAllCollisions('rectangles') || checkForCollision(elevators[i]) === 'none') {
+                        if (checkForCollision(elevators[i]) === 'none') {
+                            playerPos.y += 1;
+                            resolve(false);
+                        }
+                        playerPos.y += 1;
+                        break;
+                    }
+                }
+                resolve(true); // player used an elevator. 
+                //              The return value is used to tell the game loop to turn off gravity this tick.
+            }
+        }
+        resolve(false); // player didn't use an elevator.
+    });
 }
 
 async function jump() {
     return new Promise(async function (resolve) {
         playerPos.y ++;
-        if (checkForCollisions("rectangles")) {
+        if (checkForAllCollisions("rectangles") || checkForAllElevatorCollisions()) {
             // this only happens if there is a platform below the player
             playerPos.y --;
             gravityData.active = false;
@@ -613,9 +749,9 @@ async function mainloop() {
         }
         else if (keydata.arrows.left) {
             playerPos.x -= playerSpeed;
-            if (checkForCollisions("rectangles")) {
+            if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
+                while (!checkForAllCollisions("rectangles")) {
                     playerPos.x -= 1;
                 }
                 playerPos.x ++; // for some reason the while loop makes this
@@ -625,21 +761,25 @@ async function mainloop() {
         }
         else if (keydata.arrows.right) {
             playerPos.x += playerSpeed;
-            if (checkForCollisions("rectangles")) {
+            if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
-                while (!checkForCollisions("rectangles")) {
+                while (!checkForAllCollisions("rectangles")) {
                     playerPos.x += 1;
                 }
                 playerPos.x --;
             }
         }
     }
-
     // process stuff like gravity, etc
+    if (await elevator()) { 
+        gravityData.on = false;
+    }
+    else {
+        gravityData.on = true;
+    }
     gravity();
-
     // kill the player if it's touching a spike
-    if (checkForCollisions("spikes")) {
+    if (checkForAllCollisions("spikes")) {
         playerPos.x = 0;
         playerPos.y = 0;
         gravityData.active = true;
@@ -696,6 +836,7 @@ async function drawloop() {
         background(playerPos.x % 100, playerPos.y % 100);
         drawObjects('rectangles');
         drawObjects('spikes');
+        drawObjects('circles');
         drawPlayer();
         await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
         let end = Date.now();
@@ -726,11 +867,14 @@ async function processloop() {
 
 // preprosessing
 addCoordsToSpikeObjects();
+addTypesToObjects();
+fixColorsOnElevators();
 
 // draw the initial frame
 background(playerPos.x % 100, playerPos.y % 100);
 drawObjects('rectangles');
 drawObjects('spikes');
+drawObjects('circles');
 drawPlayer();
 
 // start the main loops
