@@ -2,7 +2,7 @@
 // this could probably do with more comments. but oh well 
 
 // lots of configs...
-var base_rng_seed = 'r';
+var base_rng_seed = Date.now().toString();
 var playerPos = {
     "x": 0,
     "y": 0
@@ -142,6 +142,40 @@ function generateSpace(x, y) {
     else {
         throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 50.');
     }
+}
+
+function removeOffScreenObjects() {
+    // removes all objects that are currently not displayed on the screen.
+    // They will then be re-generated once they move into view again
+    // this is to make the game run faster, so that we are only
+    // processing the objects that need to be processed.
+    var canvas = document.getElementById('canvas');
+    var newObjects = {
+        "rectangles": [],
+        "spikes": [],
+        "circles": []
+    };
+    var shapeNames = [
+        "rectangles",
+        "spikes",
+        "circles"
+    ];
+    for (let j = 0; j < shapeNames.length; j++) {
+        for (let i = 0; i < objects[shapeNames[j]].length; i++) {
+            if (
+                checkForCollision(
+                    objects[shapeNames[j]][i],
+                    playerPos.x - canvas.width / 2,
+                    playerPos.y - canvas.height / 2,
+                    canvas.height,
+                    canvas.width
+                ) === 'normal'
+            ) {
+                newObjects[shapeNames[j]].push(objects[shapeNames[j]][i]);
+            }
+        }
+    }
+    objects = newObjects;
 }
 
 // draw a checkerboard background. 
@@ -303,19 +337,31 @@ function getElevators() {
     return elevators;
 }
 
+function checkForPlayerCollision(object) {
+    // an easier way of checking for a player collision,
+    // without having to add all 5 args each time.
+    return checkForCollision(
+        object,
+        playerPos.x,
+        playerPos.y,
+        playerSize,
+        playerSize
+    )
+}
+
 function checkForAllCollisions(type) {
     // checks for collisions between the player and all objects of the given type
     // returns true if there is a collision, false otherwise
     if (type === 'rectangles') {
         for (let i = 0; i < objects[type].length; i++) {
-            if (checkForCollision(objects[type][i]) === 'normal') {
+            if (checkForPlayerCollision(objects[type][i]) === 'normal') {
                 return true;
             }
         }
     }
     else if (type === 'spikes') {
         for (let i = 0; i < objects[type].length; i++) {
-            if (checkForCollision(objects[type][i]) === 'normal') {
+            if (checkForPlayerCollision(objects[type][i]) === 'normal') {
                 return true;
             }
         }
@@ -331,15 +377,16 @@ function checkForAllElevatorCollisions() {
     // returns true if there is a collision, false otherwise
     var elevators = getElevators();
     for (let i = 0; i < elevators.length; i++) {
-        if (checkForCollision(elevators[i]) === 'elevator') {
+        if (checkForPlayerCollision(elevators[i]) === 'elevator') {
             return true;
         }
     }
     return false;
 }
 
-function checkForCollision(object) {
-    // checks for collisions between the player and the given object
+function checkForCollision(object, x, y, height, length) {
+    // checks for collisions between the given object
+    // and a rectangle with the given dimensions. 
     // returns one of three strings:
     // 'none' - no collision
     // 'normal' - normal collision
@@ -349,13 +396,13 @@ function checkForCollision(object) {
         if (object.type === 'rectangles') {
             if (
                 // warning: this is a mess. but it works somehow
-                (playerPos.x < object.endx && 
-                playerPos.x + playerSize > object.startx) // x-axis
+                (x < object.endx && 
+                x + length > object.startx) // x-axis
                 &&
-                ((-playerPos.y).between(object.starty, object.endy) ||
-                ((-playerPos.y) - playerSize).between(object.starty, object.endy) ||
-                object.starty.between(-playerPos.y, -playerPos.y - playerSize) ||
-                object.endy.between(-playerPos.y, -playerPos.y - playerSize)
+                ((-y).between(object.starty, object.endy) ||
+                ((-y) - height).between(object.starty, object.endy) ||
+                object.starty.between(-y, -y - height) ||
+                object.endy.between(-y, -y - height)
                 ) // y-axis
             ) {
                 if (object.elevator) {
@@ -372,39 +419,39 @@ function checkForCollision(object) {
         else if (object.type === 'spikes') {
             if (
                 // check for individual points on triangle
-                (object.points[0][0].between(playerPos.x, playerPos.x + playerSize) &&
-                object.points[0][1].between(-playerPos.y, -playerPos.y - playerSize))
+                (object.points[0][0].between(x, x + length) &&
+                object.points[0][1].between(-y, -y - height))
                 ||
-                (object.points[1][0].between(playerPos.x, playerPos.x + playerSize) &&
-                object.points[1][1].between(-playerPos.y, -playerPos.y - playerSize)) 
+                (object.points[1][0].between(x, x + length) &&
+                object.points[1][1].between(-y, -y - height)) 
                 ||
-                (object.points[2][0].between(playerPos.x, playerPos.x + playerSize) &&
-                object.points[2][1].between(-playerPos.y, -playerPos.y - playerSize))
+                (object.points[2][0].between(x, x + length) &&
+                object.points[2][1].between(-y, -y - height))
             ) {
                 return 'normal';
             }
             else if (
                 // check if individual corners of the player are inside the triangle
                 pointInTriange(
-                    [playerPos.x, -playerPos.y],
+                    [x, -y],
                     [object.points[0][0], object.points[0][1]], 
                     [object.points[1][0], object.points[1][1]], 
                     [object.points[2][0], object.points[2][1]]
                 ) ||
                 pointInTriange(
-                    [playerPos.x + playerSize, -playerPos.y],
+                    [x + length, -y],
                     [object.points[0][0], object.points[0][1]],
                     [object.points[1][0], object.points[1][1]],
                     [object.points[2][0], object.points[2][1]]
                 ) ||
                 pointInTriange(
-                    [playerPos.x, -playerPos.y - playerSize],
+                    [x, -y - height],
                     [object.points[0][0], object.points[0][1]],
                     [object.points[1][0], object.points[1][1]],
                     [object.points[2][0], object.points[2][1]]
                 ) ||
                 pointInTriange(
-                    [playerPos.x + playerSize, -playerPos.y - playerSize],
+                    [x + length, -y - height],
                     [object.points[0][0], object.points[0][1]],
                     [object.points[1][0], object.points[1][1]],
                     [object.points[2][0], object.points[2][1]]
@@ -499,11 +546,11 @@ async function elevator() {
         // idk if this really has to be a promise but oh well
         var elevators = getElevators();
         for (let i = 0; i < elevators.length; i++) {
-            if (checkForCollision(elevators[i]) === 'elevator') {
+            if (checkForPlayerCollision(elevators[i]) === 'elevator') {
                 for (let j = 0; j < 24; j++) {
                     playerPos.y -= 1;
-                    if (checkForAllCollisions('rectangles') || checkForCollision(elevators[i]) === 'none') {
-                        if (checkForCollision(elevators[i]) === 'none') {
+                    if (checkForAllCollisions('rectangles') || checkForPlayerCollision(elevators[i]) === 'none') {
+                        if (checkForPlayerCollision(elevators[i]) === 'none') {
                             playerPos.y += 1;
                             resolve(false);
                         }
@@ -539,8 +586,9 @@ async function jump() {
 async function mainloop() {
     // main processing loop. does not draw the screen. 
     // check for any key presses, and do stuff based on them.
+    let oldX = playerPos.x;
+    let oldY = playerPos.y;
     if (keydata.any) {
-        let oldX = playerPos.x;
         if (keydata.arrows.up && !jumping) {
             jumping = true;
             await jump();
@@ -582,6 +630,82 @@ async function mainloop() {
         playerPos.x = 0;
         playerPos.y = 0;
         gravityData.active = true;
+    }
+    // finally, after all movement has been processed, delete and add blocks
+    // based off of the player's new position.
+    removeOffScreenObjects();
+    if (playerPos.x !== oldX || playerPos.y !== oldY) {
+        /* 
+            WARNING: The following code is quite messy.
+            Basically what is does, is calculates where
+            new spaces have to be generated, based on which
+            direction the player moved.
+        */
+        // console.log(playerPos, oldX, oldY);
+        if (playerPos.x > oldX) {
+            // moved right
+            for (
+                let i = (Math.floor(playerPos.x / 50) * 50) + (canvas.width / 2), ii = i;
+                i < ii + 300;
+                i += 50) {
+                for (
+                    let j = (Math.floor(playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    j > jj - 600;
+                    j -= 50
+                ) {
+                    generateSpace(i, j);
+                }
+            }
+            addTypesToObjects();
+        }
+        if (playerPos.x < oldX) {
+            // moved left
+            for (
+                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2), ii = i;
+                i > ii - 300;
+                i -= 50) {
+                for (
+                    let j = (Math.floor(playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    j > jj - 600;
+                    j -= 50
+                ) {
+                    generateSpace(i, j);
+                }
+            }
+            addTypesToObjects();
+        }
+        if (playerPos.y > oldY) {
+            // moved down
+            for (
+                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2) - 300, ii = i;
+                i < ii + 1400;
+                i += 50) {
+                for (
+                    let j = (Math.floor(-playerPos.y / 50) * 50) - (canvas.height / 2), jj = j;
+                    j > jj - 300;
+                    j -= 50
+                ) {
+                    generateSpace(i, j);
+                }
+            }
+            addTypesToObjects();
+        }
+        if (playerPos.y < oldY) {
+            // moved up
+            for (
+                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2) - 300, ii = i;
+                i < ii + 1400;
+                i += 50) {
+                for (
+                    let j = (Math.floor(-playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    j < jj + 300;
+                    j += 50
+                ) {
+                    generateSpace(i, j);
+                }
+            }
+            addTypesToObjects();
+        }
     }
 }
 
