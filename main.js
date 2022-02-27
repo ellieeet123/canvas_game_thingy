@@ -2,6 +2,7 @@
 // this could probably do with more comments. but oh well 
 
 // lots of configs...
+var base_rng_seed = 'r';
 var playerPos = {
     "x": 0,
     "y": 0
@@ -53,253 +54,17 @@ will be able to pass right through it.
 var objects = {
     "rectangles": [
         {
-            "startx": -1000,
-            "starty": -70,
-            "endx": 100,
-            "endy": -50,
+            "startx": -100,
+            "starty": -50,
+            "endx": 200,
+            "endy": -70,
             "color": "#ff0000",
-            "collide": true
-        },
-        {
-            "startx": 330,
-            "starty": 120,
-            "endx": 400,
-            "endy": 200,
-            "color": "#00ff00",
-            "collide": true
-        },
-        {
-            "startx": -170,
-            "starty": -70,
-            "endx": -150,
-            "endy": -750,
-            "color": "#7722ff",
-            "collide": false,
-            "elevator": true
-        },
-        {
-            "startx": 140,
-            "starty": -70,
-            "endx": 160,
-            "endy": -750,
-            "color": "#7722ff",
-            "collide": false,
-            "elevator": true
-        },
-        {
-            "startx": 130,
-            "starty": 30,
-            "endx": 330,
-            "endy": 50,
-            "color": "#000000",
-            "collide": true
-        },
-        {
-            "startx": -630,
-            "starty": 130,
-            "endx": 250,
-            "endy": 150,
-            "color": "#000000",
-            "collide": true
-        },
-        {
-            "startx": -1000,
-            "starty": -470,
-            "endx": 100,
-            "endy": -460,
-            "color": "#ff0000",
-            "collide": true
-        },
-        {
-            "startx": -1000,
-            "starty": -10000,
-            "endx": 1000,
-            "endy": -10010,
-            "color": "#209920",
-            "collide": true
-        },
-        {
-            "startx": -640,
-            "starty": 0,
-            "endx": -230,
-            "endy": 10,
-            "color": "#000000",
-            "collide": true
+            "collide": true,
         }
     ],
-    "spikes": [
-        {
-            "x": -400,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -425,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -450,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -475,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -500,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -525,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -550,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -575,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -600,
-            "y": -50,
-            "size": 25,
-            "direction": "up",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -400,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -425,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -450,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -475,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -500,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -525,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -550,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -575,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        },
-        {
-            "x": -600,
-            "y": 105,
-            "size": 25,
-            "direction": "down",
-            "color": "#e67923",
-            "death": true,
-            "collide": true
-        }
-    ],
-    "circles": [
-        {
-            "x": -100,
-            "y": -100,
-            "radius": 50,
-            "color": "#ff000044",
-        }
-    ]
-};
+    "spikes": [],
+    "circles": []
+}
 
 /*  returns true if a number is between two values. 
     for example: 
@@ -343,6 +108,40 @@ function pointInTriange(P, A, B, C) {
     var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
     // Check if point is in triangle
     return (u >= 0) && (v >= 0) && (u + v < 1);
+}
+
+function random(seed, range) {
+    // returns a random number from the UHEPRNG
+    var prng = uheprng();
+    prng.initState();
+    prng.hashString(seed);
+    return prng(range);
+}
+
+function generateSpace(x, y) {
+    // generates all of the objects that start in a 50x50 square
+    // originating at x, y.
+    if (x % 50 === 0 && y % 50 === 0) { // make sure the location is valid
+        var number = random(
+            base_rng_seed + x + y,
+            100_000
+        );
+        if (number > 93_000) {
+            objects.rectangles.push(
+                {
+                    "startx": x,
+                    "starty": y - 20,
+                    "endx": x + 150,
+                    "endy": y,
+                    "color": "#00f",
+                    "collide": true
+                }
+            )
+        }
+    }
+    else {
+        throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 50.');
+    }
 }
 
 // draw a checkerboard background. 
@@ -866,6 +665,11 @@ async function processloop() {
 // start this thing!
 
 // preprosessing
+for (let i = -1000; i < 1000; i += 50) {
+    for (let j = -1000; j < 1000; j += 50) {
+        generateSpace(j, i);
+    }
+}
 addCoordsToSpikeObjects();
 addTypesToObjects();
 fixColorsOnElevators();
