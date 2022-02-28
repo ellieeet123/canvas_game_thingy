@@ -1,2 +1,4 @@
 # canvas_game_thingy
-just a test
+play it: https://ellieeet123.github.io/canvas_game_thingy/
+
+(currently very far from finished.)
