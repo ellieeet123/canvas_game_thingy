@@ -490,8 +490,9 @@ function gravity() {
         }
         let oldY = playerPos.y;
         // normal falling amount calculator
+        var fallAmount = 0;
         if (gravityData.active) {
-            var fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
+            fallAmount = (gravityData.timeFallen ** 1.5) + 1.1;
             // limit the falling speed so that it doesn't get way too fast
             if (fallAmount >= 35) {
                 fallAmount = 35;
@@ -500,7 +501,7 @@ function gravity() {
         // will go to the else if gravity is off (the player is jumping)
         else {
             // big ugly equation, calculates jump height.
-            var fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
+            fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
         }
         // this loop is gravity is normal
         if (gravityData.active) {
