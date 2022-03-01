@@ -121,7 +121,7 @@ function random(seed, range) {
 function generateSpace(x, y) {
     // generates all of the objects that start in a 50x50 square
     // originating at x, y.
-    if (x % 50 === 0 && y % 50 === 0) { // make sure the location is valid
+    if (x % 300 === 0 && y % 300 === 0) { // make sure the location is valid
         var number = random(
             base_rng_seed + x + y,
             100_000
@@ -140,7 +140,7 @@ function generateSpace(x, y) {
         }
     }
     else {
-        throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 50.');
+        // throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 300.');
     }
 }
 
@@ -646,13 +646,13 @@ async function mainloop() {
         if (playerPos.x > oldX) {
             // moved right
             for (
-                let i = (Math.floor(playerPos.x / 50) * 50) + (canvas.width / 2), ii = i;
+                let i = (Math.floor(playerPos.x / 300) * 300) + (canvas.width / 2), ii = i;
                 i < ii + 300;
-                i += 50) {
+                i += 300) {
                 for (
-                    let j = (Math.floor(playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
                     j > jj - 600;
-                    j -= 50
+                    j -= 300
                 ) {
                     generateSpace(i, j);
                 }
@@ -662,13 +662,13 @@ async function mainloop() {
         if (playerPos.x < oldX) {
             // moved left
             for (
-                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2), ii = i;
+                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2), ii = i;
                 i > ii - 300;
-                i -= 50) {
+                i -= 300) {
                 for (
-                    let j = (Math.floor(playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
                     j > jj - 600;
-                    j -= 50
+                    j -= 300
                 ) {
                     generateSpace(i, j);
                 }
@@ -678,13 +678,13 @@ async function mainloop() {
         if (playerPos.y > oldY) {
             // moved down
             for (
-                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2) - 300, ii = i;
-                i < ii + 1400;
-                i += 50) {
+                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2) - 300, ii = i;
+                i < ii + 1500;
+                i += 300) {
                 for (
-                    let j = (Math.floor(-playerPos.y / 50) * 50) - (canvas.height / 2), jj = j;
+                    let j = (Math.floor(-playerPos.y / 300) * 300) - (canvas.height / 2), jj = j;
                     j > jj - 300;
-                    j -= 50
+                    j -= 300
                 ) {
                     generateSpace(i, j);
                 }
@@ -694,13 +694,13 @@ async function mainloop() {
         if (playerPos.y < oldY) {
             // moved up
             for (
-                let i = (Math.floor(playerPos.x / 50) * 50) - (canvas.width / 2) - 300, ii = i;
-                i < ii + 1400;
-                i += 50) {
+                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2) - 300, ii = i;
+                i < ii + 1500;
+                i += 300) {
                 for (
-                    let j = (Math.floor(-playerPos.y / 50) * 50) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(-playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
                     j < jj + 300;
-                    j += 50
+                    j += 300
                 ) {
                     generateSpace(i, j);
                 }
@@ -790,8 +790,8 @@ async function processloop() {
 // start this thing!
 
 // preprosessing
-for (let i = -1000; i < 1000; i += 50) {
-    for (let j = -1000; j < 1000; j += 50) {
+for (let i = -600; i < 600; i += 300) {
+    for (let j = -600; j < 600; j += 300) {
         generateSpace(j, i);
     }
 }
