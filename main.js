@@ -118,21 +118,46 @@ function random(seed, range) {
     return prng(range);
 }
 
+function findAllIndexesOf(string, substring) {
+    // returns an array of all indexes of a substring in a string
+    // from https://stackoverflow.com/a/1144788
+    var indexes = [];
+    var i = -1;
+    while ((i = string.indexOf(substring, i+1)) !== -1) {
+        indexes.push(i);
+    }
+    return indexes;
+}
+
 function generateSpace(x, y) {
     // generates all of the objects that start in a 50x50 square
     // originating at x, y.
-    if (x % 300 === 0 && y % 300 === 0) { // make sure the location is valid
+    if (x % 50 === 0 && y % 50 === 0) { // make sure the location is valid
         var number = random(
             base_rng_seed + x + y,
-            100_000
+            2 ** 36 // the number will have 36 bits, as the square that's being
+                    // generated is a 6x6 square on screen (300x300 pixels)
         );
-        if (number > 93_000) {
+        var numberStr = number.toString();
+        if (numberStr.length < 5) {
+            numberStr = numberStr + '0'.repeat(5 - numberStr.length);
+        }
+        var binary = number.toString(2);
+        if (binary.length < 36) { // 36 is the highest number of bits that can appear in the binary string
+            binary = '0'.repeat(36 - binary.length) + binary;
+        }
+        var platformLocations = findAllIndexesOf(binary, '1011');
+        // console.log(platformLocations);
+        var newx, newy;
+        for (let i = 0; i < platformLocations.length; i++) {
+            newx = x + (platformLocations[i] % 6) * 50;
+            newy = y + Math.floor(platformLocations[i] / 6) * 50;
             objects.rectangles.push(
                 {
-                    "startx": x,
-                    "starty": y - 20,
-                    "endx": x + 150,
-                    "endy": y,
+                    "startx": newx,
+                    "starty": newy - 20,
+                    "endx": newx + 150,
+                    "endy": newy,
                     "color": "#00f",
                     "collide": true
                 }
@@ -643,17 +668,21 @@ async function mainloop() {
             direction the player moved.
         */
         // console.log(playerPos, oldX, oldY);
+        var xOffset = 600;
+        var yOffset = 300;
         if (playerPos.x > oldX) {
             // moved right
             for (
-                let i = (Math.floor(playerPos.x / 300) * 300) + (canvas.width / 2), ii = i;
-                i < ii + 300;
-                i += 300) {
+                let i = (Math.floor(playerPos.x / 300) * 300) + xOffset, ii = i;
+                i > ii - 900;
+                i -= 300
+            ) {
                 for (
-                    let j = (Math.floor(playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(playerPos.y / 300) * 300) + yOffset, jj = j;
                     j > jj - 600;
                     j -= 300
                 ) {
+                    console.log(i, j);
                     generateSpace(i, j);
                 }
             }
@@ -662,14 +691,15 @@ async function mainloop() {
         if (playerPos.x < oldX) {
             // moved left
             for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2), ii = i;
-                i > ii - 300;
-                i -= 300) {
+                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
+                i < ii + 900;
+                i += 300) {
                 for (
-                    let j = (Math.floor(playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(playerPos.y / 300) * 300) + yOffset, jj = j;
                     j > jj - 600;
                     j -= 300
                 ) {
+                    console.log(i, j);
                     generateSpace(i, j);
                 }
             }
@@ -678,14 +708,15 @@ async function mainloop() {
         if (playerPos.y > oldY) {
             // moved down
             for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2) - 300, ii = i;
+                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset - 300, ii = i;
                 i < ii + 1500;
                 i += 300) {
                 for (
-                    let j = (Math.floor(-playerPos.y / 300) * 300) - (canvas.height / 2), jj = j;
+                    let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
                     j > jj - 300;
                     j -= 300
                 ) {
+                    console.log(i, j);
                     generateSpace(i, j);
                 }
             }
@@ -694,14 +725,15 @@ async function mainloop() {
         if (playerPos.y < oldY) {
             // moved up
             for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - (canvas.width / 2) - 300, ii = i;
+                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset - 300, ii = i;
                 i < ii + 1500;
                 i += 300) {
                 for (
-                    let j = (Math.floor(-playerPos.y / 300) * 300) + (canvas.height / 2), jj = j;
+                    let j = (Math.floor(-playerPos.y / 300) * 300) + yOffset, jj = j;
                     j < jj + 300;
                     j += 300
                 ) {
+                    console.log(i, j);
                     generateSpace(i, j);
                 }
             }
