@@ -29,6 +29,21 @@ var keydata = {
         "right": false
     }
 }
+var colors = {
+    // colors that different types can be
+    "rectanglesNormal": [
+        "#df2a2a",
+        "#2a2adf",
+        "#2adf2a",
+        "#fcba03",
+        "#0be35e",
+        "#700ff7",
+        "#0da5d4",
+        "#d6510f",
+        "#f7f70f",
+        "#ed2da4",
+    ]
+}
 // an object with all seeds that have been generated, and the number they produced.
 // this is to prevent running the RNG multiple times, which improves performance.
 var rngData = {};
@@ -135,78 +150,65 @@ function findAllIndexesOf(string, substring) {
 }
 
 function generateSpace(x, y) {
-    // generates all of the objects that start in a 50x50 square
+    // generates all of the objects that start in a 600x600 square
     // originating at x, y.
-    if (x % 50 === 0 && y % 50 === 0) { // make sure the location is valid
-        var seed = base_rng_seed + x + y;
+    if (x % 300 === 0 && y % 300 === 0) { // make sure the location is valid
+        var seed = base_rng_seed + x + y; // generate a seed based on the location
+        // check if a number has already been generated from that seed, 
+        // and if it hasn't then generate it
         if (rngData[seed] === undefined) {
             rngData[seed] = random(seed, 2 ** 36);
             // the number will have 36 bits, as the square that's being
             // generated is a 6x6 square on screen (300x300 pixels)
         }
         var number = rngData[seed];
+
         var numberStr = number.toString();
-        if (numberStr.length < 5) {
-            numberStr = numberStr + '0'.repeat(5 - numberStr.length);
-        }
         var binary = number.toString(2);
         if (binary.length < 36) { // 36 is the highest number of bits that can appear in the binary string
             binary = '0'.repeat(36 - binary.length) + binary;
         }
-        var platformLocations = findAllIndexesOf(binary, '1011');
-        var newx, newy;
+        var platformLocations = findAllIndexesOf(binary, '111');
+        var newx, newy, blockLength, color;
         for (let i = 0; i < platformLocations.length; i++) {
             newx = x + (platformLocations[i] % 6) * 50;
             newy = y + Math.floor(platformLocations[i] / 6) * 50;
+            blockLength = Number(numberStr[i % numberStr.length]) * 25;
+            if (blockLength < 100) {
+                blockLength = 100;
+            }
+            color = colors.rectanglesNormal[Number(numberStr[1])];
             objects.rectangles.push(
                 {
                     "startx": newx,
                     "starty": newy - 20,
-                    "endx": newx + 150,
+                    "endx": newx + blockLength,
                     "endy": newy,
-                    "color": "#00f",
+                    "color": color,
                     "collide": true
                 }
             )
+            if (numberStr[i % numberStr.length] === '5') {
+                objects.rectangles.push(
+                    {
+                        "startx": newx + blockLength / 2 - 10,
+                        "starty": newy ,
+                        "endx": newx +  blockLength / 2 + 10,
+                        "endy": newy + 300,
+                        "color": color + '88',
+                        "collide": false,
+                        "elevator": true
+                    }
+                )
+            }
+        }
+        var elevators = getElevators();
+        for (let i = 0; i < elevators.length; i++) {
         }
     }
     else {
-        // throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 300.');
+        throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 300.');
     }
-}
-
-function removeOffScreenObjects() {
-    // removes all objects that are currently not displayed on the screen.
-    // They will then be re-generated once they move into view again
-    // this is to make the game run faster, so that we are only
-    // processing the objects that need to be processed.
-    var canvas = document.getElementById('canvas');
-    var newObjects = {
-        "rectangles": [],
-        "spikes": [],
-        "circles": []
-    };
-    var shapeNames = [
-        "rectangles",
-        "spikes",
-        "circles"
-    ];
-    for (let j = 0; j < shapeNames.length; j++) {
-        for (let i = 0; i < objects[shapeNames[j]].length; i++) {
-            if (
-                checkForCollision(
-                    objects[shapeNames[j]][i],
-                    playerPos.x - canvas.width / 2,
-                    playerPos.y - canvas.height / 2,
-                    canvas.height,
-                    canvas.width
-                ) === 'normal'
-            ) {
-                newObjects[shapeNames[j]].push(objects[shapeNames[j]][i]);
-            }
-        }
-    }
-    objects = newObjects;
 }
 
 // draw a checkerboard background. 
@@ -532,7 +534,7 @@ function gravity() {
         // will go to the else if gravity is off (the player is jumping)
         else {
             // big ugly equation, calculates jump height.
-            fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.38);
+            fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.86);
         }
         // this loop is gravity is normal
         if (gravityData.active) {
@@ -759,7 +761,7 @@ async function drawloop() {
 async function fpsloop() {
     while (true) {
         // only update the fps 3x every second, to make it readable.
-        document.getElementById('fps').innerHTML = 'FPS: ' + fps + '<br>(' + mspf + ' ms per frame)';
+        document.getElementById('fps').innerHTML = 'FPS: ' + fps + '<br>(' + mspf + ' ms per frame)<br>Seed: ' + base_rng_seed;
         await wait(333);
     }
 }
