@@ -29,7 +29,11 @@ var keydata = {
         "right": false
     }
 }
+// an object with all seeds that have been generated, and the number they produced.
+// this is to prevent running the RNG multiple times, which improves performance.
+var rngData = {};
 var collisionschecked = 0;
+var rngsGenerated = 0;
 /*
 ===== Epic guide to making objects =====
 
@@ -112,6 +116,7 @@ function pointInTriange(P, A, B, C) {
 
 function random(seed, range) {
     // returns a random number from the UHEPRNG
+    rngsGenerated++;
     var prng = uheprng();
     prng.initState();
     prng.hashString(seed);
@@ -133,11 +138,13 @@ function generateSpace(x, y) {
     // generates all of the objects that start in a 50x50 square
     // originating at x, y.
     if (x % 50 === 0 && y % 50 === 0) { // make sure the location is valid
-        var number = random(
-            base_rng_seed + x + y,
-            2 ** 36 // the number will have 36 bits, as the square that's being
-                    // generated is a 6x6 square on screen (300x300 pixels)
-        );
+        var seed = base_rng_seed + x + y;
+        if (rngData[seed] === undefined) {
+            rngData[seed] = random(seed, 2 ** 36);
+            // the number will have 36 bits, as the square that's being
+            // generated is a 6x6 square on screen (300x300 pixels)
+        }
+        var number = rngData[seed];
         var numberStr = number.toString();
         if (numberStr.length < 5) {
             numberStr = numberStr + '0'.repeat(5 - numberStr.length);
@@ -147,7 +154,6 @@ function generateSpace(x, y) {
             binary = '0'.repeat(36 - binary.length) + binary;
         }
         var platformLocations = findAllIndexesOf(binary, '1011');
-        // console.log(platformLocations);
         var newx, newy;
         for (let i = 0; i < platformLocations.length; i++) {
             newx = x + (platformLocations[i] % 6) * 50;
@@ -659,87 +665,33 @@ async function mainloop() {
     }
     // finally, after all movement has been processed, delete and add blocks
     // based off of the player's new position.
-    removeOffScreenObjects();
-    if (playerPos.x !== oldX || playerPos.y !== oldY) {
+    objects = {
+        // deletes all existing objects
+        "rectangles": [],
+        "spikes": [],
+        "circles": []
+    }; 
         /* 
-            WARNING: The following code is quite messy.
-            Basically what is does, is calculates where
-            new spaces have to be generated, based on which
-            direction the player moved.
+            The following code might be hard to understand. 
+            But basically what is does, is generates a space for 
+            every 600x600 pixel chunk visible to the player.
         */
-        // console.log(playerPos, oldX, oldY);
         var xOffset = 600;
         var yOffset = 300;
-        if (playerPos.x > oldX) {
-            // moved right
+        for (
+            let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
+            i < ii + xOffset * 2.5;
+            i += 300
+        ) {
             for (
-                let i = (Math.floor(playerPos.x / 300) * 300) + xOffset, ii = i;
-                i > ii - 900;
-                i -= 300
+                let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
+                j < jj + yOffset * 3.5;
+                j += 300
             ) {
-                for (
-                    let j = (Math.floor(playerPos.y / 300) * 300) + yOffset, jj = j;
-                    j > jj - 600;
-                    j -= 300
-                ) {
-                    console.log(i, j);
-                    generateSpace(i, j);
-                }
+                generateSpace(i, j);
             }
-            addTypesToObjects();
         }
-        if (playerPos.x < oldX) {
-            // moved left
-            for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
-                i < ii + 900;
-                i += 300) {
-                for (
-                    let j = (Math.floor(playerPos.y / 300) * 300) + yOffset, jj = j;
-                    j > jj - 600;
-                    j -= 300
-                ) {
-                    console.log(i, j);
-                    generateSpace(i, j);
-                }
-            }
-            addTypesToObjects();
-        }
-        if (playerPos.y > oldY) {
-            // moved down
-            for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset - 300, ii = i;
-                i < ii + 1500;
-                i += 300) {
-                for (
-                    let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
-                    j > jj - 300;
-                    j -= 300
-                ) {
-                    console.log(i, j);
-                    generateSpace(i, j);
-                }
-            }
-            addTypesToObjects();
-        }
-        if (playerPos.y < oldY) {
-            // moved up
-            for (
-                let i = (Math.floor(playerPos.x / 300) * 300) - xOffset - 300, ii = i;
-                i < ii + 1500;
-                i += 300) {
-                for (
-                    let j = (Math.floor(-playerPos.y / 300) * 300) + yOffset, jj = j;
-                    j < jj + 300;
-                    j += 300
-                ) {
-                    console.log(i, j);
-                    generateSpace(i, j);
-                }
-            }
-            addTypesToObjects();
-        }
-    }
+        addTypesToObjects();       
 }
 
 
