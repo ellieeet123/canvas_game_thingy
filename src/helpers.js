@@ -44,13 +44,22 @@ function pointInTriange(P, A, B, C) {
     return (u >= 0) && (v >= 0) && (u + v < 1);
 }
 
-function random(seed, range) {
-    // returns a random number from the UHEPRNG
+function random(seed, range, digits) {
+    // returns a random number (or a list of them) from the UHEPRNG
     rngsGenerated++;
     var prng = uheprng();
     prng.initState();
     prng.hashString(seed);
-    return prng(range);
+    if (digits === 1 || digits === undefined) {
+        return prng(range);
+    }
+    else {
+        var output = [];
+        for (let i = 0; i < digits; i++) {
+            output.push(prng(range));
+        }
+        return output;
+    }
 }
 
 function findAllIndexesOf(string, substring) {

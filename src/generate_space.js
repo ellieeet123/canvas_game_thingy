@@ -1,5 +1,43 @@
 // generating function
 
+function generateLineData(seed) {
+    var numbers = random(seed, 100, 100);
+    // numbers is a list of 100 rns. 
+    // each part of generating the output object
+    // should use a different number from this list.
+    var 
+        slope,
+        direction, 
+        length, 
+        blockDensity, 
+        thickness,
+        spikedBlockChance,
+        freeSpikesChance,
+        color;
+    var output = {};
+    output.seed = seed; // initial seed
+    output.numbers = numbers; // seeds after running through PRNG
+    if (numbers[0] < generatorConfig.rightChance) {
+        direction = 'right';
+    }
+    else {
+        direction = 'left';
+    }
+    output.direction = direction;
+    if (numbers[1] < generatorConfig.smallSlopeChance) {
+        slope = numbers[2] / (100 / (1 - generatorConfig.minSlope)) + generatorConfig.minSlope;
+    }
+    else {
+        slope = numbers[2] / (100 / (1 - generatorConfig.maxSlope)) + generatorConfig.maxSlope;
+    }
+    output.slope = slope.toFixed(2);
+    length = numbers[3] / (100 / (generatorConfig.maxLength - generatorConfig.minLength)) + generatorConfig.minLength;
+    output.length = Math.floor(length);
+    blockDensity = numbers[4] / (100 / (generatorConfig.maxBlockDensity - generatorConfig.minBlockDensity)) + generatorConfig.minBlockDensity;
+    output.blockDensity = blockDensity.toFixed(2);
+
+    return output;
+}
 
 function generateSpace(x, y) {
     // generates all of the objects that start in a 600x600 square
@@ -15,6 +53,9 @@ function generateSpace(x, y) {
         }
         var number = rngData[seed];
 
+        if (lineData[seed] === undefined) {
+            lineData[seed] = generateLineData(seed);
+        }
         var numberStr = number.toString();
         var binary = number.toString(2);
         if (binary.length < 36) { // 36 is the highest number of bits that can appear in the binary string
@@ -29,7 +70,7 @@ function generateSpace(x, y) {
             if (blockLength < 100) {
                 blockLength = 100;
             }
-            color = colors.rectanglesNormal[Number(numberStr[1])];
+            color = generatorConfig.colors.rectanglesNormal[Number(numberStr[1])];
             objects.rectangles.push(
                 {
                     "startx": newx,

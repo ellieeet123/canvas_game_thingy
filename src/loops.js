@@ -70,7 +70,7 @@ async function mainloop() {
         ) {
             for (
                 let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
-                j < jj + yOffset * 3.5;
+                j < jj + yOffset * 4;
                 j += 300
             ) {
                 generateSpace(i, j);
