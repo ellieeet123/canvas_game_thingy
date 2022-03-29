@@ -9,10 +9,11 @@ function fixColorsOnElevators() {
     }
 }
 
-function getElevators() {
+function getElevators() {        
+    // returns a list of all rectangles with the
+    // `elevator` property set to true
     var elevators = [];
     for (let i = 0; i < objects.rectangles.length; i++) {
-        // get all elevator objects
         if (objects.rectangles[i].elevator) {
             elevators.push(objects.rectangles[i]);
         }
@@ -21,6 +22,9 @@ function getElevators() {
 }
 
 function gravity() {
+    // relatively simple gravity engine. 
+    // has no return value, instead simply
+    // updates the `playerPos.y` value. 
     if (gravityData.on) {
         if (gravityData.active !== gravityData.activeLastTick) {
             // gravity has been reversed since last processing tick, so
@@ -84,6 +88,8 @@ function gravity() {
 }
 
 async function elevator() {
+    // moves the player up if it is inside an elevator,
+    // and returns true if the player moved. 
     return new Promise(resolve => {
         // idk if this really has to be a promise but oh well
         var elevators = getElevators();
@@ -101,7 +107,7 @@ async function elevator() {
                     }
                 }
                 resolve(true); // player used an elevator. 
-                //              The return value is used to tell the game loop to turn off gravity this tick.
+                //                The return value is used to tell the game loop to turn off gravity this tick.
             }
         }
         resolve(false); // player didn't use an elevator.
@@ -109,6 +115,7 @@ async function elevator() {
 }
 
 async function jump() {
+    // simulates jumping by reversing gravity for 300ms
     return new Promise(async function (resolve) {
         playerPos.y ++;
         if (checkForAllCollisions("rectangles") || checkForAllElevatorCollisions()) {

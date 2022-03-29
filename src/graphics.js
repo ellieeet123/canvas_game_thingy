@@ -7,6 +7,7 @@ function background(offsetX, offsetY) {
     let count = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#eeeeee';
+    // draw all the lighter squares
     for (let i = -150; i < canvas.width + 100; i += 50) {
         for (let j = -150; j < canvas.height + 100; j += 50) {
             if (count % 2 === 0) {
@@ -17,6 +18,7 @@ function background(offsetX, offsetY) {
     }
     count = 0;
     ctx.fillStyle = '#cccccc';
+    // draw all the darker squares
     for (let i = -150; i < canvas.width + 100; i += 50) {
         for (let j = -150; j < canvas.height + 100; j += 50) {
             if (count % 2 === 1) {
@@ -32,12 +34,13 @@ function background(offsetX, offsetY) {
     - spikes
 */
 function drawObjects(type) {
+    // draws all objects on the screen of the given type. 
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     if (type === 'rectangles') {
         for (let i = 0; i < objects[type].length; i++) {
             ctx.fillStyle = objects[type][i].color;
-            // ignore the mess below, it works
+            // calculate the actual position on the canvas based on player pos
             let startXCor = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].startx;
             let startYCor = (canvas.height / 2) + (-(playerPos.y)) + (-(objects[type][i].starty));
             let endXCor   = (canvas.width  / 2) + (-(playerPos.x)) + objects[type][i].endx;
@@ -69,6 +72,8 @@ function drawObjects(type) {
             ctx.fill();
         }
     }
+    // circles are currently just for decoration and have no
+    // functional purposes. 
     else if (type === 'circles') {
         for (let i = 0; i < objects[type].length; i++) {
             ctx.fillStyle = objects[type][i].color;
@@ -87,6 +92,7 @@ function drawObjects(type) {
 }
 
 function drawPlayer() {
+    // draws the player
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = '#3366ff';

@@ -3,6 +3,8 @@
 function checkForPlayerCollision(object) {
     // an easier way of checking for a player collision,
     // without having to add all 5 args each time.
+    // simply checks for a collision between the given
+    // object, and a rectangle the size of the player. 
     return checkForCollision(
         object,
         playerPos.x,
@@ -30,13 +32,15 @@ function checkForAllCollisions(type) {
         }
     }
     else {
+        // give an error message if an invalid name is passed to the function
         throw new Error('checkForAllCollisions: type ' + type + ' is not a valid shape name');
     }
     return false;
 }
 
 function checkForAllElevatorCollisions() {
-    // checks for collisions between the player and all elevator objects
+    // checks for collisions between the player and all rectangle objects
+    // with the `elevator` property set to true. 
     // returns true if there is a collision, false otherwise
     var elevators = getElevators();
     for (let i = 0; i < elevators.length; i++) {
@@ -58,7 +62,6 @@ function checkForCollision(object, x, y, height, length) {
     if (object.collide || object.elevator) {
         if (object.type === 'rectangles') {
             if (
-                // warning: this is a mess. but it works somehow
                 (x < object.endx && 
                 x + length > object.startx) // x-axis
                 &&
@@ -81,7 +84,8 @@ function checkForCollision(object, x, y, height, length) {
         }
         else if (object.type === 'spikes') {
             if (
-                // check for individual points on triangle
+                // check if each point in the current triangle
+                // collides with the rectangle
                 (object.points[0][0].between(x, x + length) &&
                 object.points[0][1].between(-y, -y - height))
                 ||

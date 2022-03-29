@@ -1,7 +1,7 @@
 // All of the global variables used in the game
 
 
-var base_rng_seed = Date.now().toString();
+var base_rng_seed = new Date().toString();
 var playerPos = {
     "x": 0,
     "y": 0

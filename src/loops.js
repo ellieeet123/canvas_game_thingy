@@ -7,11 +7,13 @@ async function mainloop() {
     let oldX = playerPos.x;
     if (keydata.any) {
         if (keydata.arrows.up && !jumping) {
+            // jump
             jumping = true;
             await jump();
             jumping = false;
         }
         else if (keydata.arrows.left) {
+            // move player left
             playerPos.x -= playerSpeed;
             if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
@@ -24,6 +26,7 @@ async function mainloop() {
             }
         }
         else if (keydata.arrows.right) {
+            // move player right
             playerPos.x += playerSpeed;
             if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
@@ -56,30 +59,31 @@ async function mainloop() {
         "spikes": [],
         "circles": []
     }; 
-        /* 
-            The following code might be hard to understand. 
-            But basically what is does, is generates a space for 
-            every 600x600 pixel chunk visible to the player.
-        */
-        var xOffset = 600;
-        var yOffset = 300;
+    /* 
+        The following code might be hard to understand. 
+        But basically what is does, is generates a space for 
+        every 600x600 pixel chunk visible to the player.
+    */
+    var xOffset = 600;
+    var yOffset = 300;
+    for (
+        let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
+        i < ii + xOffset * 2.5;
+        i += 300
+    ) {
         for (
-            let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
-            i < ii + xOffset * 2.5;
-            i += 300
+            let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
+            j < jj + yOffset * 4;
+            j += 300
         ) {
-            for (
-                let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
-                j < jj + yOffset * 4;
-                j += 300
-            ) {
-                generateSpace(i, j);
-            }
+            generateSpace(i, j);
         }
-        addTypesToObjects();       
+    }
+    addTypesToObjects();       
 }
 
 async function drawloop() {
+    // draws screen 
     while (true) {
         let start = Date.now();
         background(playerPos.x % 100, playerPos.y % 100);
@@ -98,14 +102,19 @@ async function drawloop() {
 }
 
 async function fpsloop() {
+    // updates FPS display
     while (true) {
         // only update the fps 3x every second, to make it readable.
-        document.getElementById('fps').innerHTML = 'FPS: ' + fps + '<br>(' + mspf + ' ms per frame)<br>Seed: ' + base_rng_seed;
+        document.getElementById('fps').innerHTML = 
+            'FPS: ' + fps + '<br>' 
+            + '(' + mspf + ' ms per frame)' 
+            + '<br>Seed: ' + base_rng_seed;
         await wait(333);
     }
 }
 
 async function processloop() {
+    // runs mainloop() but with a small delay.
     while (true) {
         mainloop();
         await wait(30);

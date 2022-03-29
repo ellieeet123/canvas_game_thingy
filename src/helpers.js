@@ -6,19 +6,36 @@
     -> true
     8.between(10, 20)
     -> false
-        - stolen from stackoverflow
 */
-Number.prototype.between = function(a, b) {
-    return this > Math.min(a,b) && this < Math.max(a,b);
+Number.prototype.between = function(firstNum, secondNum) {
+    if (
+        this > Math.min(firstNum, secondNum) ||
+        this < Math.max(firstNum, secondNum)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+    // return this > Math.min(a,b) && this < Math.max(a,b);
 };
 
 async function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    // waits for a given number of milliseconds
+    return new Promise(
+        function(resolve) {
+            window.setTimeout(resolve, ms)
+        }
+    );
 }
 
-// returns true if a point is inside a triangle with vertices A, B, C
-// from https://stackoverflow.com/a/9747983
-// vec and dot are helper functions for pointInTriangle, taken from the same source
+/*  !!! NOT ORIGINAL CODE !!!
+    Code Snippit written by StackOverflow user Grumdrig.
+    Link to profile:       https://stackoverflow.com/users/167531/grumdrig
+    Link to code snippit:  https://stackoverflow.com/a/9747983.
+
+    Functions named vec, dot, and pointInTriangle are all
+    from this same source. 
+*/
 function vec(from, to) {  
     return [to[0] - from[0], to[1] - from[1]];
 }
@@ -26,6 +43,7 @@ function dot(u, v) {
     return u[0] * v[0] + u[1] * v[1];
 }
 function pointInTriange(P, A, B, C) {
+    // returns true if a point is inside a triangle with vertices A, B, C
     // Compute vectors        
     var v0 = vec(A, C);
     var v1 = vec(A, B);
@@ -64,11 +82,16 @@ function random(seed, range, digits) {
 
 function findAllIndexesOf(string, substring) {
     // returns an array of all indexes of a substring in a string
-    // from https://stackoverflow.com/a/1144788
     var indexes = [];
     var i = -1;
-    while ((i = string.indexOf(substring, i+1)) !== -1) {
-        indexes.push(i);
-    }
+    do {
+        i = string.indexOf(substring, i + 1);
+        if (i === -1) {
+            // no more substrings found
+            break;
+        } else {
+            indexes.push(i);
+        }
+    } while (true);
     return indexes;
 }
