@@ -12,11 +12,21 @@ function generateLineData(seed) {
         blockDensity, 
         thickness,
         spikedBlockChance,
-        freeSpikesChance,
+        freeSpikeDensity,
         color;
     var output = {};
     output.seed = seed; // initial seed
     output.numbers = numbers; // seeds after running through PRNG
+
+    if (numbers[99] > generatorConfig.lineChance) {
+        // if the last number is greater than the line chance,
+        // then no line will be generated.
+        output.line = false;
+        return output;
+    }
+    output.line = true;
+
+    // whether the line will go towards the left or to the right.
     if (numbers[0] < generatorConfig.rightChance) {
         direction = 'right';
     }
@@ -24,6 +34,8 @@ function generateLineData(seed) {
         direction = 'left';
     }
     output.direction = direction;
+
+    // the slope of the line
     if (numbers[1] < generatorConfig.smallSlopeChance) {
         slope = numbers[2] / (100 / (1 - generatorConfig.minSlope)) + generatorConfig.minSlope;
     }
@@ -31,11 +43,30 @@ function generateLineData(seed) {
         slope = numbers[2] / (100 / (1 - generatorConfig.maxSlope)) + generatorConfig.maxSlope;
     }
     output.slope = slope.toFixed(2);
+
+    // the length of the line
     length = numbers[3] / (100 / (generatorConfig.maxLength - generatorConfig.minLength)) + generatorConfig.minLength;
     output.length = Math.floor(length);
+
+    // how dence the distribution of blocks will be
     blockDensity = numbers[4] / (100 / (generatorConfig.maxBlockDensity - generatorConfig.minBlockDensity)) + generatorConfig.minBlockDensity;
     output.blockDensity = blockDensity.toFixed(2);
 
+    // thickness of the line
+    thickness = numbers[5] / (100 / (generatorConfig.maxLineHeight - generatorConfig.minLineHeight)) + generatorConfig.minLineHeight;
+    output.thickness = Math.floor(thickness);
+
+    // chance of each block being outlined in spikes
+    spikedBlockChance = numbers[6] / (100 / (generatorConfig.maxSpikeBlockChance - generatorConfig.minSpikeBlockChance)) + generatorConfig.minSpikeBlockChance;
+    output.spikedBlockChance = spikedBlockChance.toFixed(2);
+
+    // how dence the distribution of free spikes will be
+    freeSpikeDensity = numbers[7] / (100 / (generatorConfig.maxRandomSpikeChance - generatorConfig.minRandomSpikeChance)) + generatorConfig.minRandomSpikeChance;
+    output.freeSpikeDensity = freeSpikeDensity.toFixed(2);
+
+    // color of the line
+    color = generatorConfig.colors.rectanglesNormal[numbers[8] % generatorConfig.colors.rectanglesNormal.length];
+    output.color = color;
     return output;
 }
 

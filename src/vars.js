@@ -74,28 +74,29 @@ var objects = {
 
 // config for the line section of the space generation
 var generatorConfig = {
-    "rightChance": 50, //percent chance of a line generating in the right direction from it's start. chance for left will be 100 - rightChance
-    "minLength": 300, // minimum length of a line, pixels
-    "maxLength": 1800, // maximum length of a line, pixels
-    "minSlope": 0.5, // minimum slope of a line, rise over run
-    "maxSlope": 3, // maximum slope of a line, rise over run
-    "smallSlopeChance": 40, // percent chance of a line generating with a slope less than 1
-    "minBlockDensity": 10, // minimum percent of 50x50 chunks within the line that will spawn a block
-    "maxBlockDensity": 20, // maximum percent of 50x50 chunks within the line that will spawn a block
-    "minBlockWidth": 50, // minimum width of a block, pixels
-    "maxBlockWidth": 200, // maximum width of a block, pixels
-    "minLineHeight": 50, /* minimum height of a line, pixels.
-                            The height of a line is essentially the range
-                            of Y cords that blocks can spawn in, starting
-                            from the origin of the line. In other words,
-                            the thickness of a line. It still has the slope
-                            from the min and max slope properties. */
-    "maxLineHeight": 200, // maximum height of a line, pixels.
-    "minSpikeBlockChance": 10, // minimum percent of blocks that will have spikes on them
-    "maxSpikeBlockChance": 20, // maximum percent of blocks that will have spikes on them
-    "minRandomSpikeChance": 6, // minimum percent 50x50 chunks that will have a floating spike
+    "lineChance": 90,           // percent chance that a line will be generated
+    "rightChance": 50,          // percent chance of a line generating in the right direction from it's start. chance for left will be 100 - rightChance
+    "minLength": 300,           // minimum length of a line, pixels
+    "maxLength": 1800,          // maximum length of a line, pixels
+    "minSlope": 0.5,            // minimum slope of a line, rise over run
+    "maxSlope": 3,              // maximum slope of a line, rise over run
+    "smallSlopeChance": 40,     // percent chance of a line generating with a slope less than 1
+    "minBlockDensity": 10,      // minimum percent of 50x50 chunks within the line that will spawn a block
+    "maxBlockDensity": 20,      // maximum percent of 50x50 chunks within the line that will spawn a block
+    "minBlockWidth": 50,        // minimum width of a block, pixels
+    "maxBlockWidth": 200,       // maximum width of a block, pixels
+    "minLineHeight": 50,        // minimum height of a line, pixels.
+                                // The height of a line is essentially the range
+                                // of Y cords that blocks can spawn in, starting
+                                // from the origin of the line. In other words,
+                                // the thickness of a line. It still has the slope
+                                // from the min and max slope properties.
+    "maxLineHeight": 200,       // maximum height of a line, pixels.
+    "minSpikeBlockChance": 10,  // minimum percent of blocks that will have spikes on them
+    "maxSpikeBlockChance": 20,  // maximum percent of blocks that will have spikes on them
+    "minRandomSpikeChance": 6,  // minimum percent 50x50 chunks that will have a floating spike
     "maxRandomSpikeChance": 10, // maximum percent 50x50 chunks that will have a floating spike
-    "colors": { // colors that different types can be
+    "colors": {                 // colors that different types can be
         "rectanglesNormal": [
             "#df2a2a",
             "#2a2adf",

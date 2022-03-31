@@ -9,14 +9,13 @@
 */
 Number.prototype.between = function(firstNum, secondNum) {
     if (
-        this > Math.min(firstNum, secondNum) ||
+        this > Math.min(firstNum, secondNum) &&
         this < Math.max(firstNum, secondNum)
     ) {
         return true;
     } else {
         return false;
     }
-    // return this > Math.min(a,b) && this < Math.max(a,b);
 };
 
 async function wait(ms) {

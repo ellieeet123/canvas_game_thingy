@@ -6,7 +6,7 @@ function background(offsetX, offsetY) {
     let ctx = canvas.getContext("2d");
     let count = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#eeeeee';
+    ctx.fillStyle = '#151515';
     // draw all the lighter squares
     for (let i = -150; i < canvas.width + 100; i += 50) {
         for (let j = -150; j < canvas.height + 100; j += 50) {
@@ -17,7 +17,7 @@ function background(offsetX, offsetY) {
         }
     }
     count = 0;
-    ctx.fillStyle = '#cccccc';
+    ctx.fillStyle = '#1a1a1a';
     // draw all the darker squares
     for (let i = -150; i < canvas.width + 100; i += 50) {
         for (let j = -150; j < canvas.height + 100; j += 50) {
@@ -29,7 +29,7 @@ function background(offsetX, offsetY) {
     }
 }
 
-/*  [type] can be one of the following:
+/*  `type` can be one of the following:
     - rectangles
     - spikes
 */
