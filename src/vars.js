@@ -1,7 +1,7 @@
 // All of the global variables used in the game
 
 
-var base_rng_seed = new Date().toString();
+const base_rng_seed = new Date().toString();
 var playerPos = {
     "x": 0,
     "y": 0
@@ -17,8 +17,8 @@ var gravityData = {
     "prevFall": 0
 }
 var jumping = false;
-var playerSpeed = 10;
-var playerSize = 50;
+const playerSpeed = 10;
+const playerSize = 50;
 var keydata = {
     "any": false,
     "arrows": {
@@ -32,8 +32,11 @@ var keydata = {
 // this is to prevent running the RNG multiple times, which improves performance.
 var rngData = {};
 var lineData = {};
+
+// these two are just for fun. 
 var collisionschecked = 0;
 var rngsGenerated = 0;
+
 /*
 ===== Epic guide to making objects =====
 
@@ -73,7 +76,7 @@ var objects = {
 }
 
 // config for the line section of the space generation
-var generatorConfig = {
+const generatorConfig = {
     "lineChance": 90,           // percent chance that a line will be generated
     "rightChance": 50,          // percent chance of a line generating in the right direction from it's start. chance for left will be 100 - rightChance
     "minLength": 300,           // minimum length of a line, pixels
