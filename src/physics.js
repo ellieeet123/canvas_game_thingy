@@ -1,26 +1,6 @@
 // gravity and elevators and stuff
 
 
-function fixColorsOnElevators() {
-    // makes all elevator objects slightly transparent
-    var elevators = getElevators();
-    for (let i = 0; i < elevators.length; i++) {
-        elevators[i].color = elevators[i].color + '77';
-    }
-}
-
-function getElevators() {        
-    // returns a list of all rectangles with the
-    // `elevator` property set to true
-    var elevators = [];
-    for (let i = 0; i < objects.rectangles.length; i++) {
-        if (objects.rectangles[i].elevator) {
-            elevators.push(objects.rectangles[i]);
-        }
-    }
-    return elevators;
-}
-
 function gravity() {
     // relatively simple gravity engine. 
     // has no return value, instead simply
@@ -46,20 +26,32 @@ function gravity() {
         // will go to the else if gravity is off (the player is jumping)
         else {
             // big ugly equation, calculates jump height.
-            fallAmount = ((-(((-0.5 * gravityData.timeFallen) + 1) ** 2) + 15) * 1.86);
+            fallAmount = ((-((-0.5 * gravityData.timeFallen + 1) ** 2) + 15) * 1.86);
         }
         // this loop is gravity is normal
         if (gravityData.active) {
             // we check if there are collisions every pixel to make sure it doesn't fall into or through
             // a block. fortunently this doesn't take much time at all, as the graphics aren't
             // updated until all of this finishes
-            for (let i = 0; i < fallAmount && !checkForAllCollisions("rectangles") && !checkForAllElevatorCollisions(); i++) {
+            for (
+                let i = 0; 
+                i < fallAmount && 
+                !checkForAllCollisions("rectangles") && 
+                !checkForAllElevatorCollisions(); 
+                i++
+            ) {
                 playerPos.y ++;
             }
         }
         // reversed gravity
         else {
-            for (let i = 0; i < fallAmount && !checkForAllCollisions("rectangles"); i++) {
+            for (
+                let i = 0; 
+                i < fallAmount && 
+                !checkForAllCollisions("rectangles") &&
+                !checkForAllElevatorCollisions();
+                i++
+            ) {
                 playerPos.y --;
             }
         }
@@ -97,7 +89,10 @@ async function elevator() {
             if (checkForPlayerCollision(elevators[i]) === 'elevator') {
                 for (let j = 0; j < 24; j++) {
                     playerPos.y -= 1;
-                    if (checkForAllCollisions('rectangles') || checkForPlayerCollision(elevators[i]) === 'none') {
+                    if (
+                        checkForAllCollisions('rectangles') || 
+                        checkForPlayerCollision(elevators[i]) === 'none'
+                    ) {
                         if (checkForPlayerCollision(elevators[i]) === 'none') {
                             playerPos.y += 1;
                             resolve(false);

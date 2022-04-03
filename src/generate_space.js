@@ -126,11 +126,8 @@ function generateSpace(x, y) {
                 )
             }
         }
-        var elevators = getElevators();
-        for (let i = 0; i < elevators.length; i++) {
-        }
     }
     else {
-        throw new Error('Unable to generate spaces at ' + x + ', ' + y + '. Location not divisible by 300.');
+        throw new Error(`Unable to generate spaces at ${x}, ${y}. Location not divisible by 300.`);
     }
 }

@@ -2,7 +2,7 @@
 
 
 function addCoordsToSpikeObjects() {
-    // adds data for the actual cordinates of the trialgles to their data.
+    // adds data for the actual cordinates of the triangles to their data.
     // this is done to improve speed, and readability, without having
     // to spend too much time making the tris.
     for (let i = 0; i < objects.spikes.length; i++) {
@@ -55,7 +55,7 @@ function addTypesToObjects() {
 }
 
 // key event handlers
-function addKeyEventListeners(){
+function addKeyEventListeners() {
     document.addEventListener("keydown", function(event) {
         if (event.code === "ArrowLeft") {
             keydata.any = true;
@@ -74,7 +74,6 @@ function addKeyEventListeners(){
             keydata.arrows.down = true;
         }
     });
-
     document.addEventListener("keyup", function(event) {
         if (event.code === "ArrowLeft") {
             keydata.arrows.left = false;

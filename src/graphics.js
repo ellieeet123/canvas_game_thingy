@@ -7,6 +7,13 @@ function background(offsetX, offsetY) {
     let count = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#151515';
+
+    // there are two loops here, one for each color. 
+    // this is because for some reason I've found
+    // `ctx.fillStyle = color` takes significantly longer
+    // than just drawing a normal square, so the less
+    // that the fillStyle is changed, the better.
+
     // draw all the lighter squares
     for (let i = -150; i < canvas.width + 100; i += 50) {
         for (let j = -150; j < canvas.height + 100; j += 50) {
@@ -87,7 +94,7 @@ function drawObjects(type) {
         }
     }
     else {
-        throw new Error('drawObjects: type ' + type + ' is not a valid shape name');
+        throw new Error(`drawObjects: type ${type} is not a valid shape name`);
     }
 }
 

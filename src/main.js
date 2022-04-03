@@ -1,5 +1,4 @@
-// a simple game using canvas.
-// this could probably do with more comments. but oh well 
+// Main file that starts the entire game. 
 // all functions are in different files, this one just starts everything up.
 
 // preprocessing

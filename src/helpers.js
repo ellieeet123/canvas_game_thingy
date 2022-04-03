@@ -8,15 +8,11 @@
     -> false
 */
 Number.prototype.between = function(firstNum, secondNum) {
-    if (
+    return (
         this > Math.min(firstNum, secondNum) &&
         this < Math.max(firstNum, secondNum)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-};
+    );
+}
 
 async function wait(ms) {
     // waits for a given number of milliseconds
@@ -67,7 +63,7 @@ function random(seed, range, digits) {
     var prng = uheprng();
     prng.initState();
     prng.hashString(seed);
-    if (digits === 1 || digits === undefined) {
+    if (digits <= 1 || !digits) {
         return prng(range);
     }
     else {
@@ -83,7 +79,7 @@ function findAllIndexesOf(string, substring) {
     // returns an array of all indexes of a substring in a string
     var indexes = [];
     var i = -1;
-    do {
+    while (true) {
         i = string.indexOf(substring, i + 1);
         if (i === -1) {
             // no more substrings found
@@ -91,6 +87,26 @@ function findAllIndexesOf(string, substring) {
         } else {
             indexes.push(i);
         }
-    } while (true);
+    }
     return indexes;
+}
+
+function fixColorsOnElevators() {
+    // makes all elevator objects slightly transparent
+    var elevators = getElevators();
+    for (let i = 0; i < elevators.length; i++) {
+        elevators[i].color = elevators[i].color + '77';
+    }
+}
+
+function getElevators() {        
+    // returns a list of all rectangles with the
+    // `elevator` property set to true
+    var elevators = [];
+    for (let i = 0; i < objects.rectangles.length; i++) {
+        if (objects.rectangles[i].elevator) {
+            elevators.push(objects.rectangles[i]);
+        }
+    }
+    return elevators;
 }

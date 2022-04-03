@@ -33,7 +33,7 @@ function checkForAllCollisions(type) {
     }
     else {
         // give an error message if an invalid name is passed to the function
-        throw new Error('checkForAllCollisions: type ' + type + ' is not a valid shape name');
+        throw new Error(`checkForAllCollisions: type ${type} is not a valid shape name`);
     }
     return false;
 }
@@ -131,7 +131,9 @@ function checkForCollision(object, x, y, height, length) {
             }
         }
         else {
-            throw new Error('Failed to do collision check, object has type ' + object.type + ' which is invalid');
+            throw new Error(
+                `Failed to do collision check, object has type ${object.type} which is invalid`
+            );
         }
     }
     else {

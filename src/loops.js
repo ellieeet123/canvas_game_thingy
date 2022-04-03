@@ -37,20 +37,22 @@ async function mainloop() {
             }
         }
     }
+
     // process stuff like gravity, etc
-    if (await elevator()) { 
-        gravityData.on = false;
-    }
-    else {
-        gravityData.on = true;
-    }
+    await elevator()
+        // don't run gravity this tick if the player was inside an elevator
+        ? gravityData.on = false 
+        : gravityData.on = true;
     gravity();
+
     // kill the player if it's touching a spike
     if (checkForAllCollisions("spikes")) {
+        // TODO: Fancy animation
         playerPos.x = 0;
         playerPos.y = 0;
         gravityData.active = true;
     }
+
     // finally, after all movement has been processed, delete and add blocks
     // based off of the player's new position.
     objects = {
@@ -58,7 +60,8 @@ async function mainloop() {
         "rectangles": [],
         "spikes": [],
         "circles": []
-    }; 
+    };
+
     /* 
         The following code might be hard to understand. 
         But basically what is does, is generates a space for 
@@ -79,11 +82,11 @@ async function mainloop() {
             generateSpace(i, j);
         }
     }
-    addTypesToObjects();       
+    addTypesToObjects();
 }
 
 async function drawloop() {
-    // draws screen 
+    // draws screen
     while (true) {
         let start = Date.now();
         background(playerPos.x % 100, playerPos.y % 100);
@@ -104,12 +107,12 @@ async function drawloop() {
 async function fpsloop() {
     // updates FPS display
     while (true) {
-        // only update the fps 3x every second, to make it readable.
+        // only update the fps 2x every second, to make it readable.
         document.getElementById('fps').innerHTML = 
             'FPS: ' + fps + '<br>' 
             + '(' + mspf + ' ms per frame)' 
             + '<br>Seed: ' + base_rng_seed;
-        await wait(333);
+        await wait(1000 / 2);
     }
 }
 
