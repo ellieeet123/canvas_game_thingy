@@ -1,7 +1,8 @@
 // generating function
 
 function generateLineData(seed) {
-    var numbers = random(seed, 100, 100);
+    var numbers = random(seed, 100, 10);
+    var availibleNumbers = random(seed + ' ', 1000, 150);
     // numbers is a list of 100 rns. 
     // each part of generating the output object
     // should use a different number from this list.
@@ -17,8 +18,10 @@ function generateLineData(seed) {
     var output = {};
     output.seed = seed; // initial seed
     output.numbers = numbers; // seeds after running through PRNG
+    output.availibleNumbers = availibleNumbers;
+    // availibleNumbers will be accessed during actual block generation
 
-    if (numbers[99] > generatorConfig.lineChance) {
+    if (numbers[numbers.length] > generatorConfig.lineChance) {
         // if the last number is greater than the line chance,
         // then no line will be generated.
         output.line = false;
@@ -82,11 +85,50 @@ function generateSpace(x, y) {
             // the number will have 36 bits, as the square that's being
             // generated is a 6x6 square on screen (300x300 pixels)
         }
-        var number = rngData[seed];
-
         if (lineData[seed] === undefined) {
             lineData[seed] = generateLineData(seed);
         }
+        var data = lineData[seed];
+        if (data.line) {
+            if (data.direction === 'right') {
+                for (let i = 0; i < Math.floor(data.blockDensity); i++) {
+                    block = {
+                        "color": data.color,
+                        "startx": 
+                            x + data.availibleNumbers[i * 10 + 0] / (
+                                100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                            ),
+                        "starty":
+                            y + data.availibleNumbers[i * 10 + 1] / (
+                                100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
+                            ) + data.slope * (
+                                x + data.availibleNumbers[i * 10 + 2] / (
+                                    100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                                )
+                            ),
+                        "endx":
+                            x + data.availibleNumbers[i * 10 + 3] / (
+                                100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                            ),
+                        "endy":
+                            y + data.availibleNumbers[i * 10 + 4] / (
+                                100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
+                            ) + data.slope * (
+                                x + data.availibleNumbers[i * 10 + 5] / (
+                                    100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                                )
+                            ),
+                        "collide": true,
+                        "elevator": false
+                    };
+                    objects.rectangles.push(block);
+                }
+            } else {
+                // left
+
+            }
+        }
+        /*
         var numberStr = number.toString();
         var binary = number.toString(2);
         if (binary.length < 36) { // 36 is the highest number of bits that can appear in the binary string
@@ -125,7 +167,7 @@ function generateSpace(x, y) {
                     }
                 )
             }
-        }
+        }*/
     }
     else {
         throw new Error(`Unable to generate spaces at ${x}, ${y}. Location not divisible by 300.`);
