@@ -111,7 +111,8 @@ async function fpsloop() {
         document.getElementById('fps').innerHTML = 
             'FPS: ' + fps + '<br>' 
             + '(' + mspf + ' ms per frame)' 
-            + '<br>Seed: ' + base_rng_seed;
+            + '<br>Seed: ' + base_rng_seed
+            + '<br>Player: ' + playerPos.x + ', ' + playerPos.y;
         await wait(1000 / 2);
     }
 }

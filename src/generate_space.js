@@ -6,7 +6,7 @@ function generateLineData(seed) {
     // numbers is a list of 100 rns. 
     // each part of generating the output object
     // should use a different number from this list.
-    var 
+    var
         slope,
         direction, 
         length, 
@@ -14,6 +14,8 @@ function generateLineData(seed) {
         thickness,
         spikedBlockChance,
         freeSpikeDensity,
+        blockWidth,
+        blockHeight,
         color;
     var output = {};
     output.seed = seed; // initial seed
@@ -67,6 +69,13 @@ function generateLineData(seed) {
     freeSpikeDensity = numbers[7] / (100 / (generatorConfig.maxRandomSpikeChance - generatorConfig.minRandomSpikeChance)) + generatorConfig.minRandomSpikeChance;
     output.freeSpikeDensity = freeSpikeDensity.toFixed(2);
 
+    // width of the blocks
+    blockWidth = numbers[8] / (100 / (generatorConfig.maxBlockWidth - generatorConfig.minBlockWidth)) + generatorConfig.minBlockWidth;
+    output.blockWidth = Math.floor(blockWidth);
+
+    // height of the blocks. This is constant for all blocks.
+    output.blockHeight = blockHeight = generatorConfig.blockHeight;
+
     // color of the line
     color = generatorConfig.colors.rectanglesNormal[numbers[8] % generatorConfig.colors.rectanglesNormal.length];
     output.color = color;
@@ -90,33 +99,37 @@ function generateSpace(x, y) {
         }
         var data = lineData[seed];
         if (data.line) {
+            var startx, starty;
             if (data.direction === 'right') {
                 for (let i = 0; i < Math.floor(data.blockDensity); i++) {
+                    startx = Math.floor (
+                        x + data.availibleNumbers[i * 10 + 0] / (
+                            1000 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                        )
+                    );
                     block = {
                         "color": data.color,
-                        "startx": 
-                            x + data.availibleNumbers[i * 10 + 0] / (
-                                100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
-                            ),
+                        "startx": startx,
                         "starty":
-                            y + data.availibleNumbers[i * 10 + 1] / (
-                                100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
-                            ) + data.slope * (
-                                x + data.availibleNumbers[i * 10 + 2] / (
-                                    100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                            Math.floor(
+                                y
+                                /*
+                                y + data.availibleNumbers[i * 10 + 1] / (
+                                    100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
+                                ) + data.slope * (
+                                    x + data.availibleNumbers[i * 10 + 2] / (
+                                        100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                                    )
                                 )
+                                */
                             ),
                         "endx":
-                            x + data.availibleNumbers[i * 10 + 3] / (
-                                100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
+                            Math.floor(
+                                startx + 200
                             ),
                         "endy":
-                            y + data.availibleNumbers[i * 10 + 4] / (
-                                100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
-                            ) + data.slope * (
-                                x + data.availibleNumbers[i * 10 + 5] / (
-                                    100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
-                                )
+                            Math.floor(
+                                y + data.blockHeight
                             ),
                         "collide": true,
                         "elevator": false

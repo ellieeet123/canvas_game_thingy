@@ -88,6 +88,7 @@ const generatorConfig = {
     "maxBlockDensity": 20,      // maximum percent of 50x50 chunks within the line that will spawn a block
     "minBlockWidth": 50,        // minimum width of a block, pixels
     "maxBlockWidth": 200,       // maximum width of a block, pixels
+    "blockHeight": 20,          // height of a block, pixels. This is the same for all blocks.
     "minLineHeight": 50,        // minimum height of a line, pixels.
                                 // The height of a line is essentially the range
                                 // of Y cords that blocks can spawn in, starting
