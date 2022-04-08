@@ -103,33 +103,27 @@ function generateSpace(x, y) {
             if (data.direction === 'right') {
                 for (let i = 0; i < Math.floor(data.blockDensity); i++) {
                     startx = Math.floor (
-                        x + data.availibleNumbers[i * 10 + 0] / (
-                            1000 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
-                        )
+                        x + (data.availibleNumbers[i * 10 + 0] / (
+                            data.length / (data.length - generatorConfig.minLength)
+                        ) + generatorConfig.minLength)
+                    );
+                    starty = Math.floor (
+                        //(y + (data.availibleNumbers[i * 10 + 1] / (
+                        //    data.thickness / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
+                        //))) * (data.slope * startx + y)
+                        data.slope * (startx + -x) + y
                     );
                     block = {
                         "color": data.color,
                         "startx": startx,
-                        "starty":
-                            Math.floor(
-                                y
-                                /*
-                                y + data.availibleNumbers[i * 10 + 1] / (
-                                    100 / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
-                                ) + data.slope * (
-                                    x + data.availibleNumbers[i * 10 + 2] / (
-                                        100 / (data.length - generatorConfig.minLength) + generatorConfig.minLength
-                                    )
-                                )
-                                */
-                            ),
+                        "starty": starty,
                         "endx":
                             Math.floor(
                                 startx + 200
                             ),
                         "endy":
                             Math.floor(
-                                y + data.blockHeight
+                                starty + data.blockHeight
                             ),
                         "collide": true,
                         "elevator": false

@@ -67,8 +67,8 @@ async function mainloop() {
         But basically what is does, is generates a space for 
         every 600x600 pixel chunk visible to the player.
     */
-    var xOffset = 600;
-    var yOffset = 300;
+    var xOffset = 1200;
+    var yOffset = 900;
     for (
         let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
         i < ii + xOffset * 2.5;

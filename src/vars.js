@@ -82,7 +82,7 @@ const generatorConfig = {
     "minLength": 300,           // minimum length of a line, pixels
     "maxLength": 1800,          // maximum length of a line, pixels
     "minSlope": 0.5,            // minimum slope of a line, rise over run
-    "maxSlope": 3,              // maximum slope of a line, rise over run
+    "maxSlope": 1.1,              // maximum slope of a line, rise over run
     "smallSlopeChance": 40,     // percent chance of a line generating with a slope less than 1
     "minBlockDensity": 10,      // minimum percent of 50x50 chunks within the line that will spawn a block
     "maxBlockDensity": 20,      // maximum percent of 50x50 chunks within the line that will spawn a block
