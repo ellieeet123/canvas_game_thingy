@@ -15,7 +15,6 @@ function generateLineData(seed) {
         spikedBlockChance,
         freeSpikeDensity,
         blockWidth,
-        blockHeight,
         color;
     var output = {};
     output.seed = seed; // initial seed
@@ -23,7 +22,7 @@ function generateLineData(seed) {
     output.availibleNumbers = availibleNumbers;
     // availibleNumbers will be accessed during actual block generation
 
-    if (numbers[numbers.length] > generatorConfig.lineChance) {
+    if (numbers[numbers.length - 1] > generatorConfig.lineChance) {
         // if the last number is greater than the line chance,
         // then no line will be generated.
         output.line = false;
@@ -73,9 +72,6 @@ function generateLineData(seed) {
     blockWidth = numbers[8] / (100 / (generatorConfig.maxBlockWidth - generatorConfig.minBlockWidth)) + generatorConfig.minBlockWidth;
     output.blockWidth = Math.floor(blockWidth);
 
-    // height of the blocks. This is constant for all blocks.
-    output.blockHeight = blockHeight = generatorConfig.blockHeight;
-
     // color of the line
     color = generatorConfig.colors.rectanglesNormal[numbers[8] % generatorConfig.colors.rectanglesNormal.length];
     output.color = color;
@@ -83,6 +79,11 @@ function generateLineData(seed) {
 }
 
 function generateSpace(x, y) {
+/* 
+    Idea: Instead of block density, change it to block spacing,
+    that way lines won't be too dense or too sparse.
+*/
+
     // generates all of the objects that start in a 600x600 square
     // originating at x, y.
     if (x % 300 === 0 && y % 300 === 0) { // make sure the location is valid
@@ -100,39 +101,33 @@ function generateSpace(x, y) {
         var data = lineData[seed];
         if (data.line) {
             var startx, starty;
-            if (data.direction === 'right') {
-                for (let i = 0; i < Math.floor(data.blockDensity); i++) {
-                    startx = Math.floor (
-                        x + (data.availibleNumbers[i * 10 + 0] / (
-                            data.length / (data.length - generatorConfig.minLength)
-                        ) + generatorConfig.minLength)
-                    );
-                    starty = Math.floor (
-                        //(y + (data.availibleNumbers[i * 10 + 1] / (
-                        //    data.thickness / (data.thickness - generatorConfig.minLineHeight) + generatorConfig.minLineHeight
-                        //))) * (data.slope * startx + y)
-                        data.slope * (startx + -x) + y
-                    );
-                    block = {
-                        "color": data.color,
-                        "startx": startx,
-                        "starty": starty,
-                        "endx":
-                            Math.floor(
-                                startx + 200
-                            ),
-                        "endy":
-                            Math.floor(
-                                starty + data.blockHeight
-                            ),
-                        "collide": true,
-                        "elevator": false
-                    };
-                    objects.rectangles.push(block);
+            for (let i = 0; i < Math.floor(data.blockDensity); i++) {
+                startx = Math.floor (
+                    (x + data.length * data.slope * (i / data.blockDensity))
+                    + (data.availibleNumbers[i] / (1000 / generatorConfig.crazyness))
+                );
+                if (data.direction === 'left' && data.slope > 0) {
+                    data.slope = -data.slope;
                 }
-            } else {
-                // left
-
+                starty = Math.floor (
+                    data.slope * (startx + -x) + y
+                );
+                block = {
+                    "color": data.color,
+                    "startx": startx,
+                    "starty": starty,
+                    "endx":
+                        Math.floor(
+                            startx + data.blockWidth
+                        ),
+                    "endy":
+                        Math.floor(
+                            starty + generatorConfig.blockHeight
+                        ),
+                    "collide": true,
+                    "elevator": false
+                };
+                objects.rectangles.push(block);
             }
         }
         /*
