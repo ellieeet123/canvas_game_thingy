@@ -77,16 +77,16 @@ var objects = {
 
 // config for the line section of the space generation
 const generatorConfig = {
-    "lineChance": 70,           // percent chance that a line will be generated
+    "lineChance": 60,           // percent chance that a line will be generated
     "rightChance": 45,          // percent chance of a line generating in the right direction from it's start. chance for left will be 100 - rightChance
     "crazyness": 50,            // each block will be offset from a straight line by a random number from 0 to this.
-    "minLength": 600,           // minimum length of a line, pixels
+    "minLength": 1000,           // minimum length of a line, pixels
     "maxLength": 1200,          // maximum length of a line, pixels
     "minSlope": 0.5,            // minimum slope of a line, rise over run
-    "maxSlope": 2.5,            // maximum slope of a line, rise over run
-    "smallSlopeChance": 40,     // percent chance of a line generating with a slope less than 1
+    "maxSlope": 2.0,            // maximum slope of a line, rise over run
+    "smallSlopeChance": 70,     // percent chance of a line generating with a slope less than 1
     "minBlockDensity": 5,       // minimum percent of 50x50 chunks within the line that will spawn a block
-    "maxBlockDensity": 7,      // maximum percent of 50x50 chunks within the line that will spawn a block
+    "maxBlockDensity": 7,       // maximum percent of 50x50 chunks within the line that will spawn a block
     "minBlockWidth": 80,        // minimum width of a block, pixels
     "maxBlockWidth": 200,       // maximum width of a block, pixels
     "blockHeight": 15,          // height of a block, pixels. This is the same for all blocks.

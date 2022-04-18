@@ -26,7 +26,7 @@ function gravity() {
         // will go to the else if gravity is off (the player is jumping)
         else {
             // big ugly equation, calculates jump height.
-            fallAmount = ((-((-0.5 * gravityData.timeFallen + 1) ** 2) + 15) * 1.86);
+            fallAmount = ((-((-0.5 * gravityData.timeFallen + 1) ** 2) + 15) * 2.16);
         }
         // this loop is gravity is normal
         if (gravityData.active) {
