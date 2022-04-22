@@ -36,8 +36,10 @@ async function mainloop() {
                 playerPos.x --;
             }
         }
+        if (Math.abs(playerPos.x - cameraPos.x) > 150) {
+            cameraPos.x += playerPos.x - oldX;
+        }
     }
-
     // process stuff like gravity, etc
     await elevator()
         // don't run gravity this tick if the player was inside an elevator
@@ -52,7 +54,10 @@ async function mainloop() {
         playerPos.y = 0;
         gravityData.active = true;
     }
-
+    if (checkForDeath()) {
+        console.log("dead");
+        playerDied = true;
+    }
     // finally, after all movement has been processed, delete and add blocks
     // based off of the player's new position.
     objects = {
@@ -70,30 +75,56 @@ async function mainloop() {
     var xOffset = 1200;
     var yOffset = 900;
     for (
-        let i = (Math.floor(playerPos.x / 300) * 300) - xOffset, ii = i;
+        let i = (Math.floor(cameraPos.x / 300) * 300) - xOffset, ii = i;
         i < ii + xOffset * 2.5;
         i += 300
     ) {
         for (
-            let j = (Math.floor(-playerPos.y / 300) * 300) - yOffset, jj = j;
+            let j = (Math.floor(-cameraPos.y / 300) * 300) - yOffset, jj = j;
             j < jj + yOffset * 4;
             j += 300
         ) {
             generateSpace(i, j);
         }
     }
+    // start block
+    objects.rectangles.push({
+        "startx": -100,
+        "starty": -70,
+        "endx": 150,
+        "endy": -50,
+        "color": "#ffffff",
+        "collide": true
+    });
+    if (time > mspt * headstart) {
+        objects.circles.push({
+            "x": 0,
+            "y": -50,
+            "radius": time - mspt * headstart,
+            "color": "#aa000077",
+        });
+    }
     addTypesToObjects();
+    time ++;
 }
 
 async function drawloop() {
     // draws screen
     while (true) {
         let start = Date.now();
-        background(playerPos.x % 100, playerPos.y % 100);
-        drawObjects('rectangles');
-        drawObjects('spikes');
-        drawObjects('circles');
-        drawPlayer();
+        if (!playerDied) {
+            background(cameraPos.x % 100, cameraPos.y % 100);
+            drawObjects('rectangles');
+            drawObjects('spikes');
+            drawObjects('circles');
+            drawPlayer();
+            if (time < mspt * headstart) {
+                drawCounter(headstart - 1 - Math.floor(time / mspt));
+            }
+        }
+        else {
+            drawGameOver();
+        }
         await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
         let end = Date.now();
         fps = Math.round((1000 / (end - start)));
@@ -112,15 +143,16 @@ async function fpsloop() {
             'FPS: ' + fps + '<br>' 
             + '(' + mspf + ' ms per frame)' 
             + '<br>Seed: ' + base_rng_seed
-            + '<br>Player: ' + playerPos.x + ', ' + playerPos.y;
+            + '<br>Player: ' + playerPos.x + ', ' + playerPos.y
+            + '<br>Camera: ' + cameraPos.x + ', ' + cameraPos.y;
         await wait(1000 / 2);
     }
 }
 
 async function processloop() {
     // runs mainloop() but with a small delay.
-    while (true) {
+    while (!playerDied) {
         mainloop();
-        await wait(30);
+        await wait(mspt);
     }
 }

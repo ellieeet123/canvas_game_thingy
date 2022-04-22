@@ -1,14 +1,22 @@
 // All of the global variables used in the game
 
+var playerDied = false;
 
 const base_rng_seed = new Date().toString();
 var playerPos = {
     "x": 0,
     "y": 0
 };
+var cameraPos = {
+    "x": 1,
+    "y": 0
+}
+var time = 0;
 var fps = 0;
 var mspf = 0; // milliseconds per frame
 var min_mspf = 1;
+var mspt = 30; // milliseconds per tick
+var headstart = 2; // seconds before evil circle of death starts
 var gravityData = {
     "on": true, // if false, gravity is completely disabled
     "active": true, // set to false to reverse gravity

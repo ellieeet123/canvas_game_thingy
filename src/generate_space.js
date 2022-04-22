@@ -117,6 +117,9 @@ function generateSpace(x, y) {
                 starty = Math.floor (
                     data.slope * (startx + -x) + y
                 );
+                if (Math.abs(startx) < 150 && Math.abs(starty) < 150) {
+                    continue;
+                }
                 block = {
                     "color": data.color,
                     "startx": startx,
@@ -142,8 +145,9 @@ function generateSpace(x, y) {
             "startx": x,
             "starty": Math.abs((0.8 * x)) - 1200,
             "endx": x + 600,
-            "endy": Math.abs((0.8 * x)) - 1200 - 1000,
-            "collide": true
+            "endy": Math.abs((0.8 * x)) - 2200,
+            "collide": true,
+            "bottomBarrier": true
         });
     }
     else {

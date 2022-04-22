@@ -110,3 +110,9 @@ function getElevators() {
     }
     return elevators;
 }
+
+function distanceToOrgin(x, y) {
+    // returns the shortest possible distance between a point and the origin
+    // by using the Pythagorean theorem
+    return Math.sqrt(x * x + y * y);
+}

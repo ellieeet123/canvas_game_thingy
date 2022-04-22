@@ -75,6 +75,9 @@ function gravity() {
             gravityData.timeFallen ++;
             gravityData.prevFall = fallAmount;
         }
+        if (Math.abs(playerPos.y - cameraPos.y) > 150) {
+            cameraPos.y += playerPos.y - oldY;
+        }
         gravityData.activeLastTick = gravityData.active;
     }
 }
