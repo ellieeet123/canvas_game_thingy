@@ -110,26 +110,24 @@ async function mainloop() {
 
 async function drawloop() {
     // draws screen
-    while (true) {
-        let start = Date.now();
-        background(cameraPos.x % 100, cameraPos.y % 100);
-        drawObjects('rectangles');
-        drawObjects('spikes');
-        drawObjects('circles');
-        drawPlayer();
-        if (time < mspt * headstart) {
-            drawCounter(headstart - 1 - Math.floor(time / mspt));
-        }
-        if (playerDied) {
-            drawGameOver();
-        }
-        await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
-        let end = Date.now();
-        fps = Math.round((1000 / (end - start)));
-        mspf = end - start;
-        if (fps === Infinity) {
-            fps = 1001;
-        }
+    requestAnimationFrame(drawloop);
+    let start = Date.now();
+    background(cameraPos.x % 100, cameraPos.y % 100);
+    drawObjects('rectangles');
+    drawObjects('spikes');
+    drawObjects('circles');
+    drawPlayer();
+    if (time < mspt * headstart) {
+        drawCounter(headstart - 1 - Math.floor(time / mspt));
+    }
+    if (playerDied) {
+        drawGameOver();
+    }
+    let end = Date.now();
+    fps = Math.round((1000 / (end - start)));
+    mspf = end - start;
+    if (fps === Infinity) {
+        fps = 1001;
     }
 }
 
