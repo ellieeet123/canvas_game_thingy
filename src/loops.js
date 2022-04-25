@@ -100,7 +100,7 @@ async function mainloop() {
         objects.circles.push({
             "x": 0,
             "y": -50,
-            "radius": time - mspt * headstart,
+            "radius": (time - mspt * headstart) * difficulty,
             "color": "#aa000077",
         });
     }
@@ -144,7 +144,8 @@ async function fpsloop() {
             + '(' + mspf + ' ms per frame)' 
             + '<br>Seed: ' + base_rng_seed
             + '<br>Player: ' + playerPos.x + ', ' + playerPos.y
-            + '<br>Camera: ' + cameraPos.x + ', ' + cameraPos.y;
+            + '<br>Camera: ' + cameraPos.x + ', ' + cameraPos.y
+            + '<br>Score: ' + Math.floor(distanceToOrgin(playerPos.x, playerPos.y));
         await wait(1000 / 2);
     }
 }

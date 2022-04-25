@@ -16,7 +16,8 @@ var fps = 0;
 var mspf = 0; // milliseconds per frame
 var min_mspf = 1;
 var mspt = 30; // milliseconds per tick
-var headstart = 2; // seconds before evil circle of death starts
+var headstart = 10; // seconds before evil circle of death starts
+var difficulty = 1.5; // rate at which the circle expands
 var gravityData = {
     "on": true, // if false, gravity is completely disabled
     "active": true, // set to false to reverse gravity

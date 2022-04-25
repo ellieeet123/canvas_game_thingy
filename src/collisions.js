@@ -144,12 +144,12 @@ function checkForCollision(object, x, y, height, length) {
 function checkForDeath() {
     // returns true if the player is within the ever expanding circle of death
     // returns false otherwise
-    let circleSize = time - mspt * headstart;
+    let circleSize = (time - mspt * headstart) * difficulty;
     if (
         distanceToOrgin(playerPos.x, playerPos.y) < circleSize ||
         distanceToOrgin(playerPos.x + playerSize, playerPos.y) < circleSize ||
-        distanceToOrgin(playerPos.x, playerPos.y + playerSize) < circleSize ||
-        distanceToOrgin(playerPos.x + playerSize, playerPos.y + playerSize) < circleSize
+        distanceToOrgin(playerPos.x, playerPos.y - playerSize) < circleSize ||
+        distanceToOrgin(playerPos.x + playerSize, playerPos.y - playerSize) < circleSize
     ) {
         return true;
     }
