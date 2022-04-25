@@ -141,23 +141,30 @@ function drawPlayer() {
 }
 
 function drawGameOver() {
-    // not quite done yet
-    var img = new Image();
-    var svgContents = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' +
-        '<foreignObject width="100%" height="100%">' +
-        '<div width="100%" height="100%" xmlns="http://www.w3.org/1999/xhtml" style="font-size:40px;background:white">' +
-        '<p style="font-family:monospace">Game over' +
-        '</p>' +
-        '</div>' +
-        '</foreignObject>' +
-        '</svg>';
-    var svg = new Blob([svgContents], {'type': 'image/svg+xml;charset=utf-8'});
-    img.src = URL.createObjectURL(svg);
-    img.onload = () => {
-        let canvas = document.getElementById("canvas");
-        let ctx = canvas.getContext("2d");
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-    }
+    // `domtoimage` is an open source library that converts a DOM node
+    // to an image. The source code is loacted at https://github.com/tsayen/dom-to-image 
+    // and it is licenced under the MIT licence (https://opensource.org/licenses/MIT)
+    let canvas = document.getElementById('canvas');
+    let screen = document.createElement('div');
+    screen.innerHTML = 
+    '<span style="font-family:monospace; font-size: 40px; color: white">' +
+    '<p>Game Over</p>' +
+    '<p>Score: ' + Math.floor(distanceToOrgin(playerPos.x, playerPos.y)) +
+    '</p></span>';
+    domtoimage.toSvg(
+        screen, 
+        {
+            width: canvas.width,
+            height: canvas.height
+        }
+    ).then(dataurl => {
+            var img = new Image();
+            img.src = dataurl;
+            let canvas = document.getElementById("canvas");
+            let ctx = canvas.getContext("2d");
+            ctx.fillStyle = '#000000aa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 80, 40);
+        }
+    );
 }

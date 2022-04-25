@@ -112,17 +112,15 @@ async function drawloop() {
     // draws screen
     while (true) {
         let start = Date.now();
-        if (!playerDied) {
-            background(cameraPos.x % 100, cameraPos.y % 100);
-            drawObjects('rectangles');
-            drawObjects('spikes');
-            drawObjects('circles');
-            drawPlayer();
-            if (time < mspt * headstart) {
-                drawCounter(headstart - 1 - Math.floor(time / mspt));
-            }
+        background(cameraPos.x % 100, cameraPos.y % 100);
+        drawObjects('rectangles');
+        drawObjects('spikes');
+        drawObjects('circles');
+        drawPlayer();
+        if (time < mspt * headstart) {
+            drawCounter(headstart - 1 - Math.floor(time / mspt));
         }
-        else {
+        if (playerDied) {
             drawGameOver();
         }
         await wait(min_mspf); // tiny delay is needed to prevent the screen from locking up
