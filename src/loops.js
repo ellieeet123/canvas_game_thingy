@@ -1,7 +1,7 @@
 // main game loops
 
 
-async function mainloop() {
+async function processTick() {
     // main processing loop. does not draw the screen. 
     // check for any key presses, and do stuff based on them.
     let oldX = playerPos.x;
@@ -9,12 +9,11 @@ async function mainloop() {
         if (keydata.arrows.up && !jumping) {
             // jump
             jumping = true;
-            await jump();
-            jumping = false;
+            jump();
         }
         else if (keydata.arrows.left) {
             // move player left
-            playerPos.x -= playerSpeed;
+            playerPos.x -= Math.floor(targetFps / playerSpeed);
             if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
                 while (!checkForAllCollisions("rectangles")) {
@@ -27,7 +26,7 @@ async function mainloop() {
         }
         else if (keydata.arrows.right) {
             // move player right
-            playerPos.x += playerSpeed;
+            playerPos.x += Math.floor(targetFps / playerSpeed);
             if (checkForAllCollisions("rectangles")) {
                 playerPos.x = oldX;
                 while (!checkForAllCollisions("rectangles")) {
@@ -39,6 +38,10 @@ async function mainloop() {
         if (Math.abs(playerPos.x - cameraPos.x) > 150) {
             cameraPos.x += playerPos.x - oldX;
         }
+    }
+    if (tickNumber - jumpedTick >= 10) {
+        endJump();
+        jumping = false;
     }
     // process stuff like gravity, etc
     await elevator()
@@ -108,29 +111,6 @@ async function mainloop() {
     time ++;
 }
 
-async function drawloop() {
-    // draws screen
-    requestAnimationFrame(drawloop);
-    let start = Date.now();
-    background(cameraPos.x % 100, cameraPos.y % 100);
-    drawObjects('rectangles');
-    drawObjects('spikes');
-    drawObjects('circles');
-    drawPlayer();
-    if (time < mspt * headstart) {
-        drawCounter(headstart - 1 - Math.floor(time / mspt));
-    }
-    if (playerDied) {
-        drawGameOver();
-    }
-    let end = Date.now();
-    fps = Math.round((1000 / (end - start)));
-    mspf = end - start;
-    if (fps === Infinity) {
-        fps = 1001;
-    }
-}
-
 async function fpsloop() {
     // updates FPS display
     while (true) {
@@ -146,10 +126,34 @@ async function fpsloop() {
     }
 }
 
-async function processloop() {
-    // runs mainloop() but with a small delay.
-    while (!playerDied) {
-        mainloop();
-        await wait(mspt);
+async function mainloop() {
+    // this is the main game loop that runs basically everything.
+    
+    requestAnimationFrame(drawloop);
+    if (Date.now() - lastTickTime > 1000 / targetFps) {
+        tickNumber++;
+        lastTickTime = Date.now();
+        let start = Date.now();
+        background(cameraPos.x % 100, cameraPos.y % 100);
+        drawObjects('rectangles');
+        drawObjects('spikes');
+        drawObjects('circles');
+        drawPlayer();
+        if (time < mspt * headstart) {
+            drawCounter(headstart - 1 - Math.floor(time / mspt));
+        }
+        if (playerDied) {
+            drawGameOver();
+        } else {
+            processTick();
+        }
+        let end = Date.now();
+        fps = Math.round((1000 / (end - start)));
+        mspf = end - start;
+        if (fps === Infinity) {
+            fps = 1001;
+        }
+    } else {
+        skippedTicks++;
     }
 }

@@ -14,6 +14,7 @@ var cameraPos = {
 var time = 0;
 var fps = 0;
 var mspf = 0; // milliseconds per frame
+var targetFps = 60;
 var mspt = 30; // milliseconds per tick
 var headstart = 10; // seconds before evil circle of death starts
 var difficulty = 1.5; // rate at which the circle expands
@@ -25,7 +26,11 @@ var gravityData = {
     "prevFall": 0
 }
 var jumping = false;
-const playerSpeed = 10;
+var jumpedTick = 0;
+var lastTickTime = 0;
+var tickNumber = 0;
+const playerSpeed = 7; // the amount of pixels the player moves in
+                       // the amount of ticks set in targetFps
 const playerSize = 50;
 var keydata = {
     "any": false,
@@ -44,6 +49,7 @@ var lineData = {};
 // these two are just for fun. 
 var collisionschecked = 0;
 var rngsGenerated = 0;
+var skippedTicks = 0;
 
 /*
 ===== Epic guide to making objects =====

@@ -112,20 +112,21 @@ async function elevator() {
     });
 }
 
-async function jump() {
-    // simulates jumping by reversing gravity for 300ms
-    return new Promise(async function (resolve) {
-        playerPos.y ++;
-        if (checkForAllCollisions("rectangles") || checkForAllElevatorCollisions()) {
-            // this only happens if there is a platform below the player
-            playerPos.y --;
-            gravityData.active = false;
-            await wait(300);
-            gravityData.active = true;
-        }
-        else {
-            playerPos.y --;
-        }
-        resolve();
-    });
+function jump() {
+    // reverses gravity if the player is standing on a platform.
+    jumpedTick = tickNumber;
+    playerPos.y ++;
+    if (checkForAllCollisions("rectangles") || checkForAllElevatorCollisions()) {
+        // this only happens if there is a platform below the player
+        playerPos.y --;
+        gravityData.active = false;
+    }
+    else {
+        playerPos.y --;
+    }
+}
+
+function endJump() {
+    // resets gravity
+    gravityData.active = true;
 }

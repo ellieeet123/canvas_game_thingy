@@ -15,6 +15,5 @@ drawObjects('circles');
 drawPlayer();
 
 // start the main loops!
-drawloop();
-processloop();
+mainloop();
 fpsloop();
