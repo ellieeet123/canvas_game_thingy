@@ -8,7 +8,7 @@ var playerPos = {
     "y": 0
 };
 var cameraPos = {
-    "x": 1,
+    "x": 0,
     "y": 0
 }
 var time = 0;

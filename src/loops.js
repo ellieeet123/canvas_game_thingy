@@ -58,7 +58,6 @@ async function processTick() {
         gravityData.active = true;
     }
     if (checkForDeath()) {
-        console.log("dead");
         playerDied = true;
     }
     // finally, after all movement has been processed, delete and add blocks
@@ -99,6 +98,7 @@ async function processTick() {
         "color": "#ffffff",
         "collide": true
     });
+    // red circle of death
     if (time > mspt * headstart) {
         objects.circles.push({
             "x": 0,
@@ -128,25 +128,31 @@ async function fpsloop() {
 
 async function mainloop() {
     // this is the main game loop that runs basically everything.
-    
-    requestAnimationFrame(drawloop);
+    requestAnimationFrame(mainloop);
     if (Date.now() - lastTickTime > 1000 / targetFps) {
+        // make sure that it's not running too fast. 
         tickNumber++;
         lastTickTime = Date.now();
         let start = Date.now();
+        // draw the screen
         background(cameraPos.x % 100, cameraPos.y % 100);
         drawObjects('rectangles');
         drawObjects('spikes');
         drawObjects('circles');
         drawPlayer();
         if (time < mspt * headstart) {
+            // draws the countdown until the red circle starts
             drawCounter(headstart - 1 - Math.floor(time / mspt));
         }
         if (playerDied) {
+            // draws game over if the player died
             drawGameOver();
         } else {
+            // if the player didn't die, process the tick.
+            // This will do everything like gravity, movement, etc
             processTick();
         }
+        // calculate the FPS
         let end = Date.now();
         fps = Math.round((1000 / (end - start)));
         mspf = end - start;
