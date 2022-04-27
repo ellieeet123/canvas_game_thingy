@@ -113,7 +113,7 @@ async function processTick() {
 
 async function fpsloop() {
     // updates FPS display
-    while (true) {
+    while (gameRunning) {
         // only update the fps 2x every second, to make it readable.
         document.getElementById('fps').innerHTML = 
             'FPS: ' + fps + '<br>' 
@@ -128,7 +128,9 @@ async function fpsloop() {
 
 async function mainloop() {
     // this is the main game loop that runs basically everything.
-    requestAnimationFrame(mainloop);
+    if (gameRunning) {
+        requestAnimationFrame(mainloop);
+    }
     if (Date.now() - lastTickTime > 1000 / targetFps) {
         // make sure that it's not running too fast. 
         tickNumber++;

@@ -116,3 +116,23 @@ function distanceToOrgin(x, y) {
     // by using the Pythagorean theorem
     return Math.sqrt(x * x + y * y);
 }
+
+function setScoreCookie(value) {
+    // sets a cookie for the player's high score.
+    let dateObject = new Date();
+    dateObject.setTime(1e15); // make sure it doesn't expire any time soon
+    let dateString = dateObject.toUTCString();
+    document.cookie = 'highscore=' + value + ';' + ';expires=' + dateString;
+}
+
+function getHighScore() {
+    // returns the player's high score from a cookie.
+    let cookieString = decodeURIComponent(document.cookie);
+    let startIndex = cookieString.indexOf('=');
+    let endIndex = cookieString.indexOf(';');
+    return cookieString.substring(startIndex, endIndex)
+}
+
+function stopGame() {
+    gameRunning = false;
+}

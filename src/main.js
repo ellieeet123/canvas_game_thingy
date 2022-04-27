@@ -1,8 +1,9 @@
 // Main file that starts the entire game. 
 // all functions are in different files, this one just starts everything up.
 
-function startGame() {
+function startGame(seed, difficulty) {
     // preprocessing
+    setVars(seed, difficulty);
     addKeyEventListeners();
     addCoordsToSpikeObjects();
     addTypesToObjects();
@@ -20,4 +21,10 @@ function startGame() {
     fpsloop();
 }
 
-startGame();
+/*
+StartGame can be called whenever you want to. 
+It will completely reset all variables, effectively
+deleting any progress the player might have had, and 
+completely restart the game with a new seed.
+*/
+startGame(new Date().toString(), 1.5);
