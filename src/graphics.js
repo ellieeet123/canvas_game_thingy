@@ -4,6 +4,9 @@
 function background(offsetX, offsetY) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
+    canvas.onclick = () => {
+        // make sure the game doesn't restart when clicking canvas
+    }
     let count = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#151515';
@@ -146,11 +149,16 @@ function drawGameOver() {
     // and it is licenced under the MIT licence (https://opensource.org/licenses/MIT)
     let canvas = document.getElementById('canvas');
     let screen = document.createElement('div');
+    canvas.onclick = () => {
+        // restart when the player clicks the canvas
+        startGame(new Date().toString(), 1.5);
+    }
     screen.innerHTML = 
     '<span style="font-family:monospace; font-size: 40px; color: white">' +
     '<p>Game Over</p>' +
-    '<p>Score: ' + Math.floor(distanceToOrgin(playerPos.x, playerPos.y)) +
-    '</p></span>';
+    '<p>Score: ' + Math.floor(distanceToOrgin(playerPos.x, playerPos.y)) + '</p>' + 
+    '<p>Click anywhere to play again</p>' + 
+    '</span>';
     domtoimage.toSvg(
         screen, 
         {
