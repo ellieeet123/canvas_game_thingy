@@ -176,3 +176,13 @@ function drawGameOver() {
         }
     );
 }
+
+function drawMenu() {
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    let img = document.getElementById('menu_img');
+    ctx.drawImage(img, 0, 0);
+    canvas.onclick = () => {
+        startGame(new Date().toString(), 1.5);
+    }
+}

@@ -2,6 +2,15 @@
 // all functions are in different files, this one just starts everything up.
 
 function startGame(seed, difficulty) {
+    /*
+        StartGame can be called whenever you want to. 
+        It will completely reset all variables, effectively
+        deleting any progress the player might have had, and 
+        completely restart the game with a new seed.
+    */
+    // makes sure nothing happens when the canvas gets clicked
+    document.getElementById('canvas').onclick = () => {};
+
     // preprocessing
     setVars(seed, difficulty);
     addKeyEventListeners();
@@ -21,10 +30,4 @@ function startGame(seed, difficulty) {
     fpsloop();
 }
 
-/*
-StartGame can be called whenever you want to. 
-It will completely reset all variables, effectively
-deleting any progress the player might have had, and 
-completely restart the game with a new seed.
-*/
-startGame(new Date().toString(), 1.5);
+drawMenu();
